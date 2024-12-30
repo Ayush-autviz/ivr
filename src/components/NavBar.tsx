@@ -38,7 +38,7 @@ export default function NavBar() {
                     <div className="flex shrink-0  items-center">
                         <img
                             alt="Your Company"
-                            src="../../src/assets/candle.png"
+                            src="candle.png"
                             className="h-8 w-auto"
                         />
                     </div>
