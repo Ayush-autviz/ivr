@@ -1,9 +1,11 @@
 import { CalendarPlusIcon, Search,ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { fetchOptionExpiryDates, searchStocks } from '../services/polygon';
+import { fetchOptionExpiryDates, fetchOptionStrikes, searchStocks } from '../services/polygon';
 
 //import { ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
 import Loading from '../components/Loading';
+import {  useOptionChainDetails } from '../hooks/usePolygonWebSocket';
+import OptionChain from '../components/OptionChain';
 
 const Home = () => {
   const [search, setSearch] = useState('');
@@ -16,6 +18,47 @@ const Home = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState(false);
   const [selctedDate,setSelectedDate] = useState('');
+  const [date,setDate] = useState('');
+  const [optionData, setOptionData] = useState(null);
+  const [analyseLoading,setAnalyseLoading] = useState(false);
+  const [analyseError,setAnalysetError] = useState(false);
+
+  const handleAnalyse = ()=>{
+      if(!ticker){
+        setAnalysetError('Please Select Stock');
+        setTimeout(()=>{
+          setAnalysetError(false);
+      },2000)
+        return;
+      }
+      if(!date){
+        setAnalysetError('Please Select Expiry Date');
+        setTimeout(()=>{
+          setAnalysetError(false);
+      },2000)
+        return
+      }
+      fetchData();
+  }
+
+  const fetchData = async () => {
+      try {
+        setAnalyseLoading(true);
+        const data = await fetchOptionStrikes(ticker,date);
+        console.log(data,'data');
+        setOptionData(data);
+        setAnalyseLoading(false);
+      } catch (error) {
+        setAnalyseLoading(false);
+        console.log(error)
+      }
+  };
+    
+
+
+ 
+
+
 
   const handleChangeStrike = (event) => {
     setStrikeRate(event.target.value);
@@ -73,6 +116,7 @@ const Home = () => {
   };
 
   return (
+    <>
     <div className="pt-[80px] flex flex-col  md:flex-row gap-5 mx-8 mt-5">
       <div className="bg-white flex-1 rounded-2xl shadow-lg p-4 sm:p-6 h-[450px] md:w-[33%]">
         <div className="text-lg sm:text-xl font-semibold mb-4 text-gray-800">Step 1</div>
@@ -122,7 +166,7 @@ const Home = () => {
         <div className="text-lg sm:text-xl font-semibold mb-4 text-gray-800">Step 2</div>
         <div className="text-lg sm:text-xl font-semibold mb-4 text-gray-800">Choose Expiry</div>
 
-        <div onClick={toggleDropdown} className="rounded-full border-2 h-12 border-gray-800 flex flex-row gap-4 items-center p-4">
+        <div onClick={toggleDropdown} className="rounded-full cursor-pointer border-2 h-12 border-gray-800 flex flex-row gap-4 items-center p-4">
           <CalendarPlusIcon size={20} />
 
           <div className="flex-1">
@@ -163,7 +207,12 @@ const Home = () => {
                           month: 'short',
                           day: 'numeric',
                         }))
+                        setDate(date)
+
                       setIsOpen(false);
+
+                      
+                     
                       }}
                         key={index}
                         className="py-2 px-4 hover:bg-gray-100 mt-2 cursor-pointer rounded-full shadow-md"
@@ -225,6 +274,28 @@ const Home = () => {
             20
           </div>
       </div>
+
+      <div
+  onClick={handleAnalyse}
+  className={`w-full mx-4 cursor-pointer mt-10 text-sm font-medium flex justify-center items-center h-10 rounded-full ${
+    loading ? "bg-gray-500 text-gray-300" : "bg-gray-800 text-white"
+  }`}
+>
+  {analyseLoading ? (
+    <div className="flex items-center">
+      <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white mr-2"></div>
+   
+    </div>
+  ) : (
+    "Analyse"
+  )}
+</div>
+{analyseError && (
+          <div className="text-red-500 text-sm mt-2 ml-4">
+            {analyseError}
+          </div>
+        )}
+
       </div>
 
 
@@ -233,8 +304,17 @@ const Home = () => {
       </div>
 
 
-
+     
       </div>
+      <div className='flex justify-center items-center mx-10 mb-10'>
+        {
+          optionData && <OptionChain data={optionData}/>
+        }
+      
+      </div>
+      </>
+
+      
       
     
   );

@@ -1,89 +1,96 @@
-import { useEffect, useRef, useState } from 'react';
-import { WS_URL, POLYGON_API_KEY } from '../config/polygon';
-import type { StockData } from '../types';
+import { useEffect, useState } from 'react';
+import { POLYGON_API_KEY } from '../config/polygon';
 
-export function usePolygonWebSocket(symbol: string) {
-  const [data, setData] = useState<StockData[]>([]);
+async function fetchOptionDetails(optionId: string) {
+  try {
+    const response = await fetch(
+      `https://api.polygon.io/v3/quotes/options/${optionId}?apiKey=${POLYGON_API_KEY}`
+    );
+    const data = await response.json();
+     console.log(data)
+    if (!response.ok || !data.results) {
+      throw new Error(data.message || 'Failed to fetch option details');
+    }
+
+    return {
+      ask: data.results.ask_price,
+      bid: data.results.bid_price,
+      price: data.results.last_price,
+      rho: data.results.greeks.rho,
+      vega: data.results.greeks.vega,
+      theta: data.results.greeks.theta,
+      gamma: data.results.greeks.gamma,
+      delta: data.results.greeks.delta,
+    };
+  } catch (error) {
+    console.error('Error fetching option details:', error);
+    throw error;
+  }
+}
+
+async function fetchTopOptions(symbol: string, expiryDate: string, count: number) {
+  try {
+    const response = await fetch(
+      `https://api.polygon.io/v3/reference/options/contracts?underlying_ticker=${symbol}&expiration_date=${expiryDate}&apiKey=${POLYGON_API_KEY}`
+    );
+    const data = await response.json();
+
+    if (!response.ok || !data.results) {
+      throw new Error(data.message || 'Failed to fetch option contracts');
+    }
+
+    console.log(data);
+
+    // Separate Call and Put options
+    const calls = data.results.filter((contract) => contract.contract_type === 'call');
+    const puts = data.results.filter((contract) => contract.type === 'put');
+
+    console.log('cals')
+
+    // Sort by strike price or any other logic (e.g., nearest to current price)
+    const sortedCalls = calls.sort((a, b) => a.strike_price - b.strike_price).slice(0, count);
+    const sortedPuts = puts.sort((a, b) => a.strike_price - b.strike_price).slice(0, count);
+     console.log(calls)
+    return { calls: sortedCalls, puts: sortedPuts };
+  } catch (error) {
+    console.log(error);
+    console.error('Error fetching options:', error);
+    throw error;
+  }
+}
+
+
+export function useOptionChainDetails(symbol: string, expiryDate: string, count: number) {
+  const [data, setData] = useState<{ calls: any[]; puts: any[] }>({ calls: [], puts: [] });
   const [error, setError] = useState<string | null>(null);
-  const ws = useRef<WebSocket | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    if (!symbol) return;
+    if (!symbol || !expiryDate || count <= 0) return;
 
-    // Clear previous data when symbol changes
-    setData([]);
-    setError(null);
+    async function fetchOptionChain() {
+      setLoading(true);
+      try {
+        const { calls, puts } = await fetchTopOptions(symbol, expiryDate, count);
 
-    // Close existing connection
-    if (ws.current) {
-      ws.current.close();
-    }
+        // Fetch details for each call and put option
+        const callDetails = await Promise.all(calls.map((call) => fetchOptionDetails(call.ticker)));
+        const putDetails = await Promise.all(puts.map((put) => fetchOptionDetails(put.ticker)));
 
-    try {
-      ws.current = new WebSocket(`${WS_URL}?apiKey=${POLYGON_API_KEY}`);
-
-      ws.current.onopen = () => {
-        console.log('WebSocket Connected');
-        if (ws.current?.readyState === WebSocket.OPEN) {
-          ws.current.send(JSON.stringify({
-            action: 'auth',
-            params: POLYGON_API_KEY
-          }));
-
-          // Subscribe after successful authentication
-          setTimeout(() => {
-            ws.current?.send(JSON.stringify({
-              action: 'subscribe',
-              params: `T.${symbol}`  // Changed from O.${symbol} to T.${symbol} for stock trades
-            }));
-          }, 1000);
-        }
-      };
-
-      ws.current.onmessage = (event) => {
-        const message = JSON.parse(event.data);
-        
-        // Handle authentication success
-        if (message[0]?.ev === 'status' && message[0]?.status === 'auth_success') {
-          console.log('Authentication successful');
-          return;
-        }
-
-        // Handle trade data
-        if (message[0]?.ev === 'T') {
-          const trade = message[0];
-          setData(prev => [...prev, {
-            price: trade.p,
-            timestamp: trade.t
-          }].slice(-100)); // Keep only last 100 data points
-        }
-      };
-
-      ws.current.onerror = (event) => {
-        console.error('WebSocket error:', event);
-        setError('Failed to connect to WebSocket');
-      };
-
-      ws.current.onclose = () => {
-        console.log('WebSocket connection closed');
-      };
-    } catch (err) {
-      console.error('Error setting up WebSocket:', err);
-      setError('Failed to setup WebSocket connection');
-    }
-
-    return () => {
-      if (ws.current) {
-        if (ws.current.readyState === WebSocket.OPEN) {
-          ws.current.send(JSON.stringify({
-            action: 'unsubscribe',
-            params: `T.${symbol}`
-          }));
-        }
-        ws.current.close();
+        setData({ calls: callDetails, puts: putDetails });
+      } catch (err) {
+        console.log(err);
+        setError('Failed to fetch option chain details');
+      } finally {
+        setLoading(false);
       }
-    };
-  }, [symbol]);
+    }
 
-  return { data, error };
+    fetchOptionChain();
+  }, [symbol, expiryDate, count]);
+
+  return { data, error, loading };
 }
+
+
+

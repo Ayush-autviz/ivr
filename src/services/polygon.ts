@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { POLYGON_API_KEY } from '../config/polygon';
 
 const BASE_URL = 'https://api.polygon.io/v3';
@@ -36,26 +37,7 @@ export async function fetchOptionExpiryDates(symbol: string): Promise<string[]> 
   }
 }
 
-// Helper function to fetch all pages of data
-async function fetchAllPages(symbol: string, initialUrl: string): Promise<any[]> {
-  let results: any[] = [];
-  let nextUrl = initialUrl;
 
-  while (nextUrl) {
-    const response = await fetch(nextUrl);
-    if (!response.ok) {
-      throw new Error('Failed to fetch option data');
-    }
-
-    const data = await response.json();
-    results = results.concat(data.results || []);
-
-    // Check if there are more pages
-    nextUrl = data.next_url ? `${data.next_url}&apiKey=${POLYGON_API_KEY}` : null;
-  }
-
-  return results;
-}
 
 
 export async function fetchFromPolygon(endpoint: string, params: Record<string, string> = {}) {
@@ -99,3 +81,86 @@ export async function searchStocks(query: string): Promise<Array<{ symbol: strin
     return [];
   }
 }
+
+
+export const fetchOptionStrikes = async (symbol,expiry) => {
+  try {
+    // Fetch call options
+    const callResponse = await axios.get(
+      `https://api.polygon.io/v3/snapshot/options/${symbol}?contract_type=call&limit=30&expiration_date=${expiry}&apiKey=${POLYGON_API_KEY}`
+    );
+    const callData = callResponse.data.results;
+
+    
+    const currentPriceCall = callData[callData.length - 1].underlying_asset.price;
+
+    const belowCurrentPriceCall = callData
+      .filter((item) => item.details.strike_price <= currentPriceCall)
+      .sort((a, b) => b.details.strike_price - a.details.strike_price);
+
+    const aboveCurrentPriceCall = callData
+      .filter((item) => item.details.strike_price >= currentPriceCall)
+      .sort((a, b) => a.details.strike_price - b.details.strike_price);
+
+    // const uniqueBelowCall = [
+    //   ...new Set(
+    //     belowCurrentPriceCall.map((item) => item.details.strike_price)
+    //   ),
+    // ].sort((a, b) => b - a);
+
+    // const uniqueAboveCall = [
+    //   ...new Set(
+    //     aboveCurrentPriceCall.map((item) => item.details.strike_price)
+    //   ),
+    // ].sort((a, b) => a - b);
+
+    // const strikesBelowCall = uniqueBelowCall.slice(0, 4);
+    // const strikesAboveCall = uniqueAboveCall.slice(0, 4);
+
+    // Fetch put options
+    const putResponse = await axios.get(
+      `https://api.polygon.io/v3/snapshot/options/${symbol}?contract_type=put&limit=30&expiration_date=${expiry}&apiKey=${POLYGON_API_KEY}`
+    );
+    const putData = putResponse.data.results;
+    const currentPricePut = putData[putData.length - 1].underlying_asset.price;
+
+    const belowCurrentPricePut = putData
+      .filter((item) => item.details.strike_price <= currentPricePut)
+      .sort((a, b) => b.details.strike_price - a.details.strike_price);
+
+    const aboveCurrentPricePut = putData
+      .filter((item) => item.details.strike_price >= currentPricePut)
+      .sort((a, b) => a.details.strike_price - b.details.strike_price);
+
+
+      console.log(aboveCurrentPriceCall,belowCurrentPricePut);
+
+    // const uniqueBelowPut = [
+    //   ...new Set(
+    //     belowCurrentPricePut.map((item) => item.details.strike_price)
+    //   ),
+    // ].sort((a, b) => b - a);
+
+    // const uniqueAbovePut = [
+    //   ...new Set(
+    //     aboveCurrentPricePut.map((item) => item.details.strike_price)
+    //   ),
+    // ].sort((a, b) => a - b);
+
+    // const strikesBelowPut = uniqueBelowPut.slice(0, 4);
+    // const strikesAbovePut = uniqueAbovePut.slice(0, 4);
+
+    // Return the formatted data
+    return {
+      currentPriceCall,
+      belowCurrentPriceCall,
+      aboveCurrentPriceCall,
+      currentPricePut,
+      belowCurrentPricePut,
+      aboveCurrentPricePut,
+    };
+  } catch (error) {
+    console.error("Error fetching option strikes:", error);
+    return null;
+  }
+};
