@@ -13,7 +13,10 @@ export async function fetchOptionExpiryDates(symbol: string): Promise<string[]> 
       `${BASE_URL}/reference/options/contracts?` + 
       `underlying_ticker=${symbol}&` +
       `expiration_date.gte=${today}&` +
-      `limit=10&` +
+      `order=asc&`+
+      `sort=expiration_date&`+
+      `contract_type=call&`+
+      `limit=250&` +
       `apiKey=${POLYGON_API_KEY}`
     );
     
@@ -26,7 +29,7 @@ export async function fetchOptionExpiryDates(symbol: string): Promise<string[]> 
     // Extract unique expiry dates and sort them
     const expiryDates = [...new Set(
       data.results?.map((contract: any) => contract.expiration_date) || []
-    )].sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+    )].sort((a, b) => new Date(a).getTime() - new Date(b).getTime()).splice(0,5);
 
     console.log(expiryDates,'expirydates');
 
@@ -83,11 +86,11 @@ export async function searchStocks(query: string): Promise<Array<{ symbol: strin
 }
 
 
-export const fetchOptionStrikes = async (symbol,expiry) => {
+export const fetchOptionStrikes = async (symbol,expiry,number) => {
   try {
     // Fetch call options
     const callResponse = await axios.get(
-      `https://api.polygon.io/v3/snapshot/options/${symbol}?contract_type=call&limit=30&expiration_date=${expiry}&apiKey=${POLYGON_API_KEY}`
+      `https://api.polygon.io/v3/snapshot/options/${symbol}?contract_type=call&limit=250&expiration_date=${expiry}&apiKey=${POLYGON_API_KEY}`
     );
     const callData = callResponse.data.results;
 
@@ -96,11 +99,12 @@ export const fetchOptionStrikes = async (symbol,expiry) => {
 
     const belowCurrentPriceCall = callData
       .filter((item) => item.details.strike_price <= currentPriceCall)
-      .sort((a, b) => b.details.strike_price - a.details.strike_price);
+      .sort((a, b) => b.details.strike_price - a.details.strike_price).slice(0, number/2).reverse();
 
-    const aboveCurrentPriceCall = callData
-      .filter((item) => item.details.strike_price >= currentPriceCall)
-      .sort((a, b) => a.details.strike_price - b.details.strike_price);
+      const aboveCurrentPriceCall = callData
+      .filter((item) => item.details.strike_price >= currentPriceCall) // Filter items
+      .sort((a, b) => a.details.strike_price - b.details.strike_price).slice(0, number/2) // Slice the sorted array by the given number
+    ; // Reverse the sliced array
 
     // const uniqueBelowCall = [
     //   ...new Set(
@@ -119,18 +123,18 @@ export const fetchOptionStrikes = async (symbol,expiry) => {
 
     // Fetch put options
     const putResponse = await axios.get(
-      `https://api.polygon.io/v3/snapshot/options/${symbol}?contract_type=put&limit=30&expiration_date=${expiry}&apiKey=${POLYGON_API_KEY}`
+      `https://api.polygon.io/v3/snapshot/options/${symbol}?contract_type=put&limit=250&expiration_date=${expiry}&apiKey=${POLYGON_API_KEY}`
     );
     const putData = putResponse.data.results;
     const currentPricePut = putData[putData.length - 1].underlying_asset.price;
 
     const belowCurrentPricePut = putData
       .filter((item) => item.details.strike_price <= currentPricePut)
-      .sort((a, b) => b.details.strike_price - a.details.strike_price);
+      .sort((a, b) => b.details.strike_price - a.details.strike_price).slice(0, number/2).reverse();
 
     const aboveCurrentPricePut = putData
       .filter((item) => item.details.strike_price >= currentPricePut)
-      .sort((a, b) => a.details.strike_price - b.details.strike_price);
+      .sort((a, b) => a.details.strike_price - b.details.strike_price).slice(0, number/2);
 
 
       console.log(aboveCurrentPriceCall,belowCurrentPricePut);

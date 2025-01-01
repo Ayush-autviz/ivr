@@ -3,7 +3,10 @@
 //       {
 //         "break_even_price": 13.45,
 //         "day": {
-  
+
+import { useState } from "react";
+
+
 //         },
 //         "details": {
 //           "contract_type": "call",
@@ -14,7 +17,7 @@
 //           "ticker": "O:EVRI250117C00005000"
 //         },
 //         "greeks": {
-  
+
 //         },
 //         "last_quote": {
 //           "ask": 10.5,
@@ -28,7 +31,7 @@
 //           "timeframe": "REAL-TIME"
 //         },
 //         "last_trade": {
-  
+
 //         },
 //         "open_interest": 0,
 //         "underlying_asset": {
@@ -42,7 +45,7 @@
 //       {
 //         "break_even_price": 13.1,
 //         "day": {
-  
+
 //         },
 //         "details": {
 //           "contract_type": "call",
@@ -53,7 +56,7 @@
 //           "ticker": "O:EVRI250117C00006000"
 //         },
 //         "greeks": {
-  
+
 //         },
 //         "last_quote": {
 //           "ask": 8.6,
@@ -67,7 +70,7 @@
 //           "timeframe": "REAL-TIME"
 //         },
 //         "last_trade": {
-  
+
 //         },
 //         "open_interest": 0,
 //         "underlying_asset": {
@@ -81,7 +84,7 @@
 //       {
 //         "break_even_price": 13.6,
 //         "day": {
-  
+
 //         },
 //         "details": {
 //           "contract_type": "call",
@@ -110,7 +113,7 @@
 //           "timeframe": "REAL-TIME"
 //         },
 //         "last_trade": {
-  
+
 //         },
 //         "open_interest": 0,
 //         "underlying_asset": {
@@ -124,7 +127,7 @@
 //       {
 //         "break_even_price": 13.65,
 //         "day": {
-  
+
 //         },
 //         "details": {
 //           "contract_type": "call",
@@ -153,7 +156,7 @@
 //           "timeframe": "REAL-TIME"
 //         },
 //         "last_trade": {
-  
+
 //         },
 //         "open_interest": 0,
 //         "underlying_asset": {
@@ -167,7 +170,7 @@
 //       {
 //         "break_even_price": 13.95,
 //         "day": {
-  
+
 //         },
 //         "details": {
 //           "contract_type": "call",
@@ -196,7 +199,7 @@
 //           "timeframe": "REAL-TIME"
 //         },
 //         "last_trade": {
-  
+
 //         },
 //         "open_interest": 0,
 //         "underlying_asset": {
@@ -267,7 +270,7 @@
 //       {
 //         "break_even_price": 13.25,
 //         "day": {
-  
+
 //         },
 //         "details": {
 //           "contract_type": "call",
@@ -278,7 +281,7 @@
 //           "ticker": "O:EVRI250117C00011000"
 //         },
 //         "greeks": {
-  
+
 //         },
 //         "last_quote": {
 //           "ask": 3.3,
@@ -292,7 +295,7 @@
 //           "timeframe": "REAL-TIME"
 //         },
 //         "last_trade": {
-  
+
 //         },
 //         "open_interest": 0,
 //         "underlying_asset": {
@@ -306,7 +309,7 @@
 //       {
 //         "break_even_price": 14.275,
 //         "day": {
-  
+
 //         },
 //         "details": {
 //           "contract_type": "call",
@@ -335,7 +338,7 @@
 //           "timeframe": "REAL-TIME"
 //         },
 //         "last_trade": {
-  
+
 //         },
 //         "open_interest": 0,
 //         "underlying_asset": {
@@ -406,7 +409,7 @@
 //       {
 //         "break_even_price": 19,
 //         "day": {
-  
+
 //         },
 //         "details": {
 //           "contract_type": "call",
@@ -417,7 +420,7 @@
 //           "ticker": "O:EVRI250117C00014000"
 //         },
 //         "greeks": {
-  
+
 //         },
 //         "last_quote": {
 //           "ask": 10,
@@ -431,7 +434,7 @@
 //           "timeframe": "REAL-TIME"
 //         },
 //         "last_trade": {
-  
+
 //         },
 //         "open_interest": 0,
 //         "underlying_asset": {
@@ -444,210 +447,286 @@
 //       }
 //     ];
 
-    const currentPrice = 13;
+const currentPrice = 13;
 
-    const OptionChain = ({ data}) => {
-        const {
-          belowCurrentPriceCall,
-          aboveCurrentPriceCall,
-          belowCurrentPricePut,
-          aboveCurrentPricePut,
-        } = data;
-      
-        return (
-          <div className="relative overflow-x-auto border rounded-lg overflow-hidden">
-            <div className="flex">
-              {/* Left section */}
-              <div className="w-[45%] overflow-x-auto no-scrollbar">
-                <div className="p-3 bg-gray-100 text-center font-bold text-gray-800">Call</div>
-                <table className="w-full border-collapse text-sm">
-                  <thead>
-                    <tr className="bg-gray-50">
-                      <th className="p-3 text-left font-semibold text-nowrap text-gray-600 border-b">Bid</th>
-                      <th className="p-3 text-left font-semibold text-nowrap text-gray-600 border-b">Bid Size</th>
-                      <th className="p-3 text-left font-semibold text-nowrap text-gray-600 border-b">Ask</th>
-                      <th className="p-3 text-left font-semibold text-nowrap text-gray-600 border-b">Ask Size</th>
-                      <th className="p-3 text-left font-semibold text-nowrap text-gray-600 border-b">Spread</th>
-                      <th className="p-3 text-left font-semibold text-nowrap text-gray-600 border-b">OI</th>
-                      <th className="p-3 text-left font-semibold text-nowrap text-gray-600 border-b">Volume</th>
-                      <th className="p-3 text-left font-semibold text-nowrap text-gray-600 border-b">Implied Volatility</th>
-                      <th className="p-3 text-left font-semibold text-nowrap text-gray-600 border-b">Theta</th>
-                      <th className="p-3 text-left font-semibold text-nowrap text-gray-600 border-b">Vega</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {aboveCurrentPriceCall?.map((row, index) => (
-                      <tr
-                        key={`left-above-${index}`}
-                        className={`${
-                          index % 2 === 0 ? "bg-gray-50/50" : "bg-white"
-                        } hover:bg-blue-50/50 transition-colors`}
-                      >
-                        <td className="p-3 border-b text-center border-gray-100">{row.last_quote.bid}</td>
-                        <td className="p-3 border-b text-center border-gray-100">{row.last_quote.bid_size}</td>
-                        <td className="p-3 border-b text-center border-gray-100">{row.last_quote.ask}</td>
-                        <td className="p-3 border-b text-center border-gray-100">{row.last_quote.ask_size}</td>
-                        <td className="p-3 border-b text-center border-gray-100">
-                          {(
-                            ((row.last_quote.ask - row.last_quote.bid) /
-                              ((row.last_quote.ask + row.last_quote.bid) / 2)) || 0
-                          ).toFixed(2)}
-                        </td>
-                        <td className="p-3 border-b text-center border-gray-100">{row.open_interest || "N/A"}</td>
-                        <td className="p-3 border-b text-center border-gray-100">{row.day.volume || "N/A"}</td>
-                        <td className="p-3 border-b text-center border-gray-100">{row.implied_volatility?.toFixed(2) || "N/A"}</td>
-                        <td className="p-3 border-b text-center border-gray-100">{row.greeks?.theta?.toFixed(2) || "N/A"}</td>
-                        <td className="p-3 border-b text-center border-gray-100">{row.greeks?.vega?.toFixed(2) || "N/A"}</td>
-                      </tr>
-                    ))}
-                    <tr className="bg-blue-100">
-                      <td className="p-3 text-center font-bold text-blue-800" colSpan={10}>
-                      <>&nbsp;</>
-                      </td>
-                    </tr>
-                    {belowCurrentPriceCall?.map((row, index) => (
-                      <tr
-                        key={`left-below-${index}`}
-                        className={`${
-                          index % 2 === 0 ? "bg-gray-50/50" : "bg-white"
-                        } hover:bg-blue-50/50 transition-colors`}
-                      >
-                        <td className="p-3 border-b text-center border-gray-100">{row.last_quote.bid}</td>
-                        <td className="p-3 border-b text-center border-gray-100">{row.last_quote.bid_size}</td>
-                        <td className="p-3 border-b text-center border-gray-100">{row.last_quote.ask}</td>
-                        <td className="p-3 border-b text-center border-gray-100">{row.last_quote.ask_size}</td>
-                        <td className="p-3 border-b text-center border-gray-100">
-                          {(
-                            ((row.last_quote.ask - row.last_quote.bid) /
-                              ((row.last_quote.ask + row.last_quote.bid) / 2)) || 0
-                          ).toFixed(2)}
-                        </td>
-                        <td className="p-3 border-b text-center border-gray-100">{row.open_interest || "N/A"}</td>
-                        <td className="p-3 border-b text-center border-gray-100">{row.day.volume || "N/A"}</td>
-                        <td className="p-3 border-b text-center border-gray-100">{row.implied_volatility?.toFixed(2) || "N/A"}</td>
-                        <td className="p-3 border-b text-center border-gray-100">{row.greeks?.theta?.toFixed(2) || "N/A"}</td>
-                        <td className="p-3 border-b text-center border-gray-100">{row.greeks?.vega?.toFixed(2) || "N/A"}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-      
-              {/* Fixed middle section */}
-              <div className="w-[10%] bg-gray-100">
-              <div className="p-3 bg-gray-100 text-center font-bold text-gray-800"><>&nbsp;</></div>
-                <table className="w-full border-collapse text-sm">
-                  <thead>
-                    <tr>
-                      <th className="p-3 text-center font-bold text-gray-800 border-b">Strike Price</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {aboveCurrentPriceCall?.map((row, index) => (
-                      <tr key={`strike-above-${index}`} className="hover:bg-blue-50/50 transition-colors">
-                        <td className="p-3 border-b border-gray-100 text-center font-medium">
-                          {row.details.strike_price}
-                        </td>
-                      </tr>
-                    ))}
-                    <tr className="bg-blue-100">
-                      <td className="p-3 text-center font-bold text-blue-800">{currentPrice}</td>
-                    </tr>
-                    {belowCurrentPriceCall?.map((row, index) => (
-                      <tr key={`strike-below-${index}`} className="hover:bg-blue-50/50 transition-colors">
-                        <td className="p-3 border-b border-gray-100 text-center font-medium">
-                          {row.details.strike_price}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-      
-              {/* Right section */}
-              <div className="w-[45%] overflow-x-auto no-scrollbar">
-                <div className="p-3 bg-gray-100 text-center font-bold text-gray-800">Put</div>
-                <table className="w-full border-collapse text-sm">
-                  <thead>
-                    <tr className="bg-gray-50">
-                      <th className="p-3 text-left font-semibold text-nowrap text-gray-600 border-b">Bid</th>
-                      <th className="p-3 text-left font-semibold text-nowrap text-gray-600 border-b">Bid Size</th>
-                      <th className="p-3 text-left font-semibold text-nowrap text-gray-600 border-b">Ask</th>
-                      <th className="p-3 text-left font-semibold text-nowrap text-gray-600 border-b">Ask Size</th>
-                      <th className="p-3 text-left font-semibold text-nowrap text-gray-600 border-b">Spread</th>
-                      <th className="p-3 text-left font-semibold text-nowrap text-gray-600 border-b">OI</th>
-                      <th className="p-3 text-left font-semibold text-nowrap text-gray-600 border-b">Volume</th>
-                      <th className="p-3 text-left font-semibold text-nowrap text-gray-600 border-b">Implied Volatility</th>
-                      <th className="p-3 text-left font-semibold text-nowrap text-gray-600 border-b">Theta</th>
-                      <th className="p-3 text-left font-semibold text-nowrap text-gray-600 border-b">Vega</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {aboveCurrentPricePut?.map((row, index) => (
-                      <tr
-                        key={`right-above-${index}`}
-                        className={`${
-                          index % 2 === 0 ? "bg-gray-50/50" : "bg-white"
-                        } hover:bg-blue-50/50 transition-colors`}
-                      >
-                        <td className="p-3 border-b text-center border-gray-100">{row.last_quote.bid}</td>
-                        <td className="p-3 border-b text-center border-gray-100">{row.last_quote.bid_size}</td>
-                        <td className="p-3 border-b text-center border-gray-100">{row.last_quote.ask}</td>
-                        <td className="p-3 border-b text-center border-gray-100">{row.last_quote.ask_size}</td>
-                        <td className="p-3 border-b text-center border-gray-100">
-                          {(
-                            ((row.last_quote.ask - row.last_quote.bid) /
-                              ((row.last_quote.ask + row.last_quote.bid) / 2)) || 0
-                          ).toFixed(2)}
-                        </td>
-                        <td className="p-3 border-b text-center border-gray-100">{row.open_interest || "N/A"}</td>
-                        <td className="p-3 border-b text-center border-gray-100">{row.day.volume || "N/A"}</td>
-                        <td className="p-3 border-b text-center border-gray-100">{row.implied_volatility?.toFixed(2) || "N/A"}</td>
-                        <td className="p-3 border-b text-center border-gray-100">{row.greeks?.theta?.toFixed(2) || "N/A"}</td>
-                        <td className="p-3 border-b text-center border-gray-100">{row.greeks?.vega?.toFixed(2) || "N/A"}</td>
-                      </tr>
-                    ))}
-                    <tr className="bg-blue-100">
-                      <td className="p-3 text-center font-bold text-blue-800" colSpan={10}>
-                      <>&nbsp;</>
-                      </td>
-                    </tr>
-                    {belowCurrentPricePut?.map((row, index) => (
-                      <tr
-                        key={`right-below-${index}`}
-                        className={`${
-                          index % 2 === 0 ? "bg-gray-50/50" : "bg-white"
-                        } hover:bg-blue-50/50 transition-colors`}
-                      >
-                        <td className="p-3 border-b text-center border-gray-100">{row.last_quote.bid}</td>
-                        <td className="p-3 border-b text-center border-gray-100">{row.last_quote.bid_size}</td>
-                        <td className="p-3 border-b text-center border-gray-100">{row.last_quote.ask}</td>
-                        <td className="p-3 border-b text-center border-gray-100">{row.last_quote.ask_size}</td>
-                        <td className="p-3 border-b text-center border-gray-100">
-                          {(
-                            ((row.last_quote.ask - row.last_quote.bid) /
-                              ((row.last_quote.ask + row.last_quote.bid) / 2)) || 0
-                          ).toFixed(2)}
-                        </td>
-                        <td className="p-3 border-b text-center border-gray-100">{row.open_interest || "N/A"}</td>
-                        <td className="p-3 border-b text-center border-gray-100">{row.day.volume || "N/A"}</td>
-                        <td className="p-3 border-b text-center border-gray-100">{row.implied_volatility?.toFixed(2) || "N/A"}</td>
-                        <td className="p-3 border-b text-center border-gray-100">{row.greeks?.theta?.toFixed(2) || "N/A"}</td>
-                        <td className="p-3 border-b text-center border-gray-100">{row.greeks?.vega?.toFixed(2) || "N/A"}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        );
-      };
-      
-      
-      
-      
-      
-      
+const OptionChain = ({ data }) => {
+  const {
+    belowCurrentPriceCall,
+    aboveCurrentPriceCall,
+    belowCurrentPricePut,
+    aboveCurrentPricePut,
+    currentPriceCall
+  } = data;
+
+  const [selectedOptions, setSelectedOptions] = useState({
+    calls: [],
+    puts: [],
+  });
+  const [calls, setCalls] = useState([])
+  const [puts, setPuts] = useState([])
+
+  console.log(calls, puts)
+
+  const handleSelection = (type, row) => {
+    if (type === "call") {
+      if (calls.includes(row)) {
+        setCalls(calls.filter((item) => item !== row)); // Update state with filtered array
+      } else {
+        setCalls([...calls, row]); // Add the row to the calls array
+      }
+    } else {
+      if (puts.includes(row)) {
+        setPuts(puts.filter((item) => item !== row)); // Update state with filtered array
+      } else {
+        setPuts([...puts, row]); // Add the row to the puts array
+      }
+    }
+  };
+  
+
+  return (
+    <div className="relative overflow-x-auto border rounded-2xl overflow-hidden">
+      <div className="p-3 bg-gray-100 text-center font-bold text-gray-800 flex flex-row justify-between">
+        <div className="w-[45%]">Call</div>
+        <div className="w-[45%]">Put</div>
+      </div>
+      <div className="flex">
+        {/* Left section */}
+        <div className="w-[45%] overflow-x-auto no-scrollbar">
+          {/* <div className="p-3 bg-gray-100 text-center font-bold text-gray-800">Call</div> */}
+          <table className="w-full border-collapse text-sm">
+            <thead>
+              <tr className="bg-gray-50">
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">Vega</th>
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">Theta</th>
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">Implied Volatility</th>
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">Volume</th>
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">OI</th>
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">Spread</th>
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">Ask Size</th>
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">Ask</th>
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">Bid Size</th>
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">Bid</th>
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">DFM</th>
+                <th className="p-3 text-center font-semibold text-gray-600 border-b">Select</th>
+
+              </tr>
+            </thead>
+            <tbody>
+              {belowCurrentPriceCall?.map((row, index) => (
+                <tr
+                  key={`left-above-${index}`}
+                  className={`${index % 2 === 0 ? "bg-gray-50/50" : "bg-white"
+                    } hover:bg-blue-50/50 transition-colors`}
+                >
+
+                  <td className="p-3 border-b text-center border-gray-100">{row.greeks?.vega?.toFixed(2) || "N/A"}</td>
+                  <td className="p-3 border-b text-center border-gray-100">{row.greeks?.theta?.toFixed(2) || "N/A"}</td>
+                  <td className="p-3 border-b text-center border-gray-100">{row.implied_volatility?.toFixed(2) || "N/A"}</td>
+                  <td className="p-3 border-b text-center border-gray-100">{row.day.volume || "N/A"}</td>
+                  <td className="p-3 border-b text-center border-gray-100">{row.open_interest || "N/A"}</td>
+                  <td className="p-3 border-b text-center border-gray-100">
+                    {(
+                      ((row.last_quote.ask - row.last_quote.bid) /
+                        ((row.last_quote.ask + row.last_quote.bid) / 2)) || 0
+                    ).toFixed(2)}
+                  </td>
+                  <td className="p-3 border-b text-center border-gray-100">{row.last_quote.ask_size}</td>
+                  <td className="p-3 border-b text-center border-gray-100">{row.last_quote.ask}</td>
+                  <td className="p-3 border-b text-center border-gray-100">{row.last_quote.bid_size}</td>
+                  <td className="p-3 border-b text-center border-gray-100">{row.last_quote.bid}</td>
+                  <td className="p-3 border-b text-center border-gray-100">
+  {((row.details.strike_price - currentPriceCall) / row.details.strike_price * 100).toFixed(2)}%
+</td>
+                  <td className="p-3 border-b text-center border-gray-100">
+                    <input
+                      type="checkbox"
+                      checked={calls.includes(row)}
+                      onChange={() => handleSelection("call", row)}
+                    />
+                  </td>
+
+                </tr>
+              ))}
+              <tr className="bg-blue-100">
+                <td className="p-3 text-center font-bold text-blue-800" colSpan={12}>
+                  <>&nbsp;</>
+                </td>
+              </tr>
+              {aboveCurrentPriceCall?.map((row, index) => (
+                <tr
+                  key={`left-below-${index}`}
+                  className={`${index % 2 === 0 ? "bg-gray-50/50" : "bg-white"
+                    } hover:bg-blue-50/50 transition-colors`}
+                >
+                  <td className="p-3 border-b text-center border-gray-100">{row.greeks?.vega?.toFixed(2) || "N/A"}</td>
+                  <td className="p-3 border-b text-center border-gray-100">{row.greeks?.theta?.toFixed(2) || "N/A"}</td>
+                  <td className="p-3 border-b text-center border-gray-100">{row.implied_volatility?.toFixed(2) || "N/A"}</td>
+                  <td className="p-3 border-b text-center border-gray-100">{row.day.volume || "N/A"}</td>
+                  <td className="p-3 border-b text-center border-gray-100">{row.open_interest || "N/A"}</td>
+                  <td className="p-3 border-b text-center border-gray-100">
+                    {(
+                      ((row.last_quote.ask - row.last_quote.bid) /
+                        ((row.last_quote.ask + row.last_quote.bid) / 2)) || 0
+                    ).toFixed(2)}
+                  </td>
+                  <td className="p-3 border-b text-center border-gray-100">{row.last_quote.ask_size}</td>
+                  <td className="p-3 border-b text-center border-gray-100">{row.last_quote.ask}</td>
+                  <td className="p-3 border-b text-center border-gray-100">{row.last_quote.bid_size}</td>
+                  <td className="p-3 border-b text-center border-gray-100">{row.last_quote.bid}</td>
+                  <td className="p-3 border-b text-center border-gray-100">
+  {((row.details.strike_price -currentPriceCall) / row.details.strike_price * 100).toFixed(2)}%
+</td>
+                  <td className="p-3 border-b text-center border-gray-100">
+                    <input
+                      type="checkbox"
+                      checked={calls.includes(row)}
+                      onChange={() => handleSelection("call", row)}
+                    />
+                  </td>
+
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Fixed middle section */}
+        <div className="w-[10%] bg-gray-100">
+          {/* <div className="p-3 bg-gray-100 text-center font-bold text-gray-800"><>&nbsp;</></div> */}
+          <table className="w-full border-collapse text-sm">
+            <thead>
+              <tr>
+                <th className="p-3 text-center font-bold text-gray-800 border-b">Strike Price</th>
+                
+              </tr>
+            </thead>
+            <tbody>
+              {belowCurrentPriceCall?.map((row, index) => (
+                <tr key={`strike-above-${index}`} className="hover:bg-blue-50/50 transition-colors">
+                  <td className="p-3 border-b border-gray-100 text-center font-medium">
+                    {row.details.strike_price}
+                  </td>
+                </tr>
+              ))}
+              <tr className="bg-blue-100">
+                <td className="p-3 text-center font-bold text-blue-800">{currentPriceCall}</td>
+              </tr>
+              {aboveCurrentPriceCall?.map((row, index) => (
+                <tr key={`strike-below-${index}`} className="hover:bg-blue-50/50 transition-colors">
+                  <td className="p-3 border-b border-gray-100 text-center font-medium">
+                    {row.details.strike_price}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Right section */}
+        <div className="w-[45%] overflow-x-auto no-scrollbar">
+          {/* <div className="p-3 bg-gray-100 text-center  font-bold text-gray-800">Put</div> */}
+          <table className="w-full border-collapse text-sm">
+            <thead>
+              <tr className="bg-gray-50">
+                <th className="p-3 text-center font-semibold text-gray-600 border-b">Select</th>
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">DFM</th>
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">Bid</th>
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">Bid Size</th>
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">Ask</th>
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">Ask Size</th>
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">Spread</th>
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">OI</th>
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">Volume</th>
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">Implied Volatility</th>
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">Theta</th>
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">Vega</th>
+              </tr>
+            </thead>
+            <tbody>
+              {belowCurrentPricePut?.map((row, index) => (
+                <tr
+                  key={`right-above-${index}`}
+                  className={`${index % 2 === 0 ? "bg-gray-50/50" : "bg-white"
+                    } hover:bg-blue-50/50 transition-colors`}
+                >
+                  <td className="p-3 border-b text-center border-gray-100">
+                    <input
+                      type="checkbox"
+                      checked={puts.includes(row)}
+                      onChange={() => handleSelection("put", row)}
+                    />
+                  </td>
+                  <td className="p-3 border-b text-center border-gray-100">
+  {((row.details.strike_price - currentPriceCall) / row.details.strike_price * 100).toFixed(2)}%
+</td>
+                  <td className="p-3 border-b text-center border-gray-100">{row.last_quote.bid}</td>
+                  <td className="p-3 border-b text-center border-gray-100">{row.last_quote.bid_size}</td>
+                  <td className="p-3 border-b text-center border-gray-100">{row.last_quote.ask}</td>
+                  <td className="p-3 border-b text-center border-gray-100">{row.last_quote.ask_size}</td>
+                  <td className="p-3 border-b text-center border-gray-100">
+                    {(
+                      ((row.last_quote.ask - row.last_quote.bid) /
+                        ((row.last_quote.ask + row.last_quote.bid) / 2)) || 0
+                    ).toFixed(2)}
+                  </td>
+                  <td className="p-3 border-b text-center border-gray-100">{row.open_interest || "N/A"}</td>
+                  <td className="p-3 border-b text-center border-gray-100">{row.day.volume || "N/A"}</td>
+                  <td className="p-3 border-b text-center border-gray-100">{row.implied_volatility?.toFixed(2) || "N/A"}</td>
+                  <td className="p-3 border-b text-center border-gray-100">{row.greeks?.theta?.toFixed(2) || "N/A"}</td>
+                  <td className="p-3 border-b text-center border-gray-100">{row.greeks?.vega?.toFixed(2) || "N/A"}</td>
+                </tr>
+              ))}
+              <tr className="bg-blue-100">
+                <td className="p-3 text-center font-bold text-blue-800" colSpan={12}>
+                  <>&nbsp;</>
+                </td>
+              </tr>
+              {aboveCurrentPricePut?.map((row, index) => (
+                <tr
+                  key={`right-below-${index}`}
+                  className={`${index % 2 === 0 ? "bg-gray-50/50" : "bg-white"
+                    } hover:bg-blue-50/50 transition-colors`}
+                >
+                  <td className="p-3 border-b text-center border-gray-100">
+                    <input
+                      type="checkbox"
+                      checked={puts.includes(row)}
+                      onChange={() => handleSelection("put", row)}
+                    />
+                  </td>
+                  <td className="p-3 border-b text-center border-gray-100">
+  {((row.details.strike_price - currentPriceCall) / row.details.strike_price * 100).toFixed(2)}%
+</td>
+                  <td className="p-3 border-b text-center border-gray-100">{row.last_quote.bid}</td>
+                  <td className="p-3 border-b text-center border-gray-100">{row.last_quote.bid_size}</td>
+                  <td className="p-3 border-b text-center border-gray-100">{row.last_quote.ask}</td>
+                  <td className="p-3 border-b text-center border-gray-100">{row.last_quote.ask_size}</td>
+                  <td className="p-3 border-b text-center border-gray-100">
+                    {(
+                      ((row.last_quote.ask - row.last_quote.bid) /
+                        ((row.last_quote.ask + row.last_quote.bid) / 2)) || 0
+                    ).toFixed(2)}
+                  </td>
+                  <td className="p-3 border-b text-center border-gray-100">{row.open_interest || "N/A"}</td>
+                  <td className="p-3 border-b text-center border-gray-100">{row.day.volume || "N/A"}</td>
+                  <td className="p-3 border-b text-center border-gray-100">{row.implied_volatility?.toFixed(2) || "N/A"}</td>
+                  <td className="p-3 border-b text-center border-gray-100">{row.greeks?.theta?.toFixed(2) || "N/A"}</td>
+                  <td className="p-3 border-b text-center border-gray-100">{row.greeks?.vega?.toFixed(2) || "N/A"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
+
+
+
+
 
 export default OptionChain

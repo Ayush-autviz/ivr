@@ -44,7 +44,7 @@ const Home = () => {
   const fetchData = async () => {
       try {
         setAnalyseLoading(true);
-        const data = await fetchOptionStrikes(ticker,date);
+        const data = await fetchOptionStrikes(ticker,date,strikeRate);
         console.log(data,'data');
         setOptionData(data);
         setAnalyseLoading(false);
@@ -102,6 +102,7 @@ const Home = () => {
     setResults([]);
     setTicker(stock.symbol);
     setSelectedDate('');
+    setOptionData(null);
   
     try {
       setexpLoading(true);
@@ -306,9 +307,15 @@ const Home = () => {
 
      
       </div>
-      <div className='flex justify-center items-center mx-10 mb-10'>
+      <div className='flex justify-center items-center mx-8 mb-10'>
         {
-          optionData && <OptionChain data={optionData}/>
+          optionData ? <OptionChain data={optionData}/> : (
+
+          <div className='bg-white w-full flex justify-center items-center rounded-2xl shadow-lg h-[300px]'>
+                        <div className='text-4xl font-semibold '> Analyse Stock to see option chain</div>
+          </div>
+
+          )
         }
       
       </div>
