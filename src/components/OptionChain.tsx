@@ -478,7 +478,7 @@ const OptionChain = ({ data }) => {
   };
 
   return (
-    <div className="relative overflow-x-auto border rounded-2xl overflow-hidden">
+    <div className="relative overflow-x-auto border rounded-2xl overflow-hidden stock-td">
       <div className="p-3 bg-gray-100 text-center font-bold text-gray-800 flex flex-row justify-between">
         <div className="w-[45%]">Call</div>
         <div className="w-[45%]">Put</div>
@@ -551,7 +551,9 @@ const OptionChain = ({ data }) => {
                     ).toFixed(2) + "%" || "N/A"}
                   </td>
                   <td className="p-3 border-b text-center border-gray-100">
-                  {(row.implied_volatility ? (row.implied_volatility * 100).toFixed(2) : "N/A") + "%"}
+                    {(row.implied_volatility
+                      ? (row.implied_volatility * 100).toFixed(2)
+                      : "N/A") + "%"}
                   </td>
                   <td className="p-3 border-b text-center border-gray-100">
                     {row.day.volume.toLocaleString("en-US") || "N/A"}
@@ -560,12 +562,11 @@ const OptionChain = ({ data }) => {
                     {row.open_interest.toLocaleString("en-US") || "N/A"}
                   </td>
                   <td className="p-3 border-b text-center border-gray-100">
-                  {(
-  (
-    ((row.last_quote.ask - row.last_quote.bid) / 
-    ((row.last_quote.ask + row.last_quote.bid) / 2)) * 100
-  ) || 0
-).toFixed(2) + '%'}
+                    {(
+                      ((row.last_quote.ask - row.last_quote.bid) /
+                        ((row.last_quote.ask + row.last_quote.bid) / 2)) *
+                        100 || 0
+                    ).toFixed(2) + "%"}
                   </td>
                   <td className="p-3 border-b text-center border-gray-100">
                     {row.last_quote.ask_size}
@@ -626,7 +627,9 @@ const OptionChain = ({ data }) => {
                     ).toFixed(2) + "%" || "N/A"}
                   </td>
                   <td className="p-3 border-b text-center border-gray-100">
-                  {(row.implied_volatility ? (row.implied_volatility * 100).toFixed(2) : "N/A") + "%"}
+                    {(row.implied_volatility
+                      ? (row.implied_volatility * 100).toFixed(2)
+                      : "N/A") + "%"}
                   </td>
                   <td className="p-3 border-b text-center border-gray-100">
                     {row.day.volume.toLocaleString("en-US") || "N/A"}
@@ -635,12 +638,11 @@ const OptionChain = ({ data }) => {
                     {row.open_interest.toLocaleString("en-US") || "N/A"}
                   </td>
                   <td className="p-3 border-b text-center border-gray-100">
-                  {(
-  (
-    ((row.last_quote.ask - row.last_quote.bid) / 
-    ((row.last_quote.ask + row.last_quote.bid) / 2)) * 100
-  ) || 0
-).toFixed(2) + '%'}
+                    {(
+                      ((row.last_quote.ask - row.last_quote.bid) /
+                        ((row.last_quote.ask + row.last_quote.bid) / 2)) *
+                        100 || 0
+                    ).toFixed(2) + "%"}
                   </td>
                   <td className="p-3 border-b text-center border-gray-100">
                     {row.last_quote.ask_size}
@@ -711,7 +713,7 @@ const OptionChain = ({ data }) => {
 
               <tr className="bg-blue-100 border-b-[2px] border-solid border-gray-600">
                 <td
-                  className="p-3 text-center text-[11px] font-bold text-blue-800"
+                  className="p-3 text-center text-[15px] font-bold text-blue-800"
                   colSpan={2}
                 >
                   {currentPriceCall}
@@ -812,12 +814,11 @@ const OptionChain = ({ data }) => {
                     {row.last_quote.ask_size}
                   </td>
                   <td className="p-3 border-b text-center border-gray-100">
-                  {(
-  (
-    ((row.last_quote.ask - row.last_quote.bid) / 
-    ((row.last_quote.ask + row.last_quote.bid) / 2)) * 100
-  ) || 0
-).toFixed(2) + '%'}
+                    {(
+                      ((row.last_quote.ask - row.last_quote.bid) /
+                        ((row.last_quote.ask + row.last_quote.bid) / 2)) *
+                        100 || 0
+                    ).toFixed(2) + "%"}
                   </td>
                   <td className="p-3 border-b text-center border-gray-100">
                     {row.open_interest.toLocaleString("en-US") || "N/A"}
@@ -826,7 +827,9 @@ const OptionChain = ({ data }) => {
                     {row.day.volume.toLocaleString("en-US") || "N/A"}
                   </td>
                   <td className="p-3 border-b text-center border-gray-100">
-                  {(row.implied_volatility ? (row.implied_volatility * 100).toFixed(2) : "N/A") + "%"}
+                    {(row.implied_volatility
+                      ? (row.implied_volatility * 100).toFixed(2)
+                      : "N/A") + "%"}
                   </td>
                   <td className="p-3 border-b text-center border-gray-100">
                     {(
@@ -887,12 +890,11 @@ const OptionChain = ({ data }) => {
                     {row.last_quote.ask_size}
                   </td>
                   <td className="p-3 border-b text-center border-gray-100">
-                  {(
-  (
-    ((row.last_quote.ask - row.last_quote.bid) / 
-    ((row.last_quote.ask + row.last_quote.bid) / 2)) * 100
-  ) || 0
-).toFixed(2) + '%'}
+                    {(
+                      ((row.last_quote.ask - row.last_quote.bid) /
+                        ((row.last_quote.ask + row.last_quote.bid) / 2)) *
+                        100 || 0
+                    ).toFixed(2) + "%"}
                   </td>
                   <td className="p-3 border-b text-center border-gray-100">
                     {row.open_interest.toLocaleString("en-US") || "N/A"}
@@ -901,7 +903,9 @@ const OptionChain = ({ data }) => {
                     {row.day.volume.toLocaleString("en-US") || "N/A"}
                   </td>
                   <td className="p-3 border-b text-center border-gray-100">
-                  {(row.implied_volatility ? (row.implied_volatility * 100).toFixed(2) : "N/A") + "%"}
+                    {(row.implied_volatility
+                      ? (row.implied_volatility * 100).toFixed(2)
+                      : "N/A") + "%"}
                   </td>
                   <td className="p-3 border-b text-center border-gray-100">
                     {(

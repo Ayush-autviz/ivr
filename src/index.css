@@ -3,14 +3,13 @@
 @tailwind utilities;
 
 body {
-    background-color: #f3f4f6; /* bg-gray-100 equivalent */
-    margin: 0;
-    padding: 0;
-    min-height: 100vh;
-  }
+  background-color: #f3f4f6; /* bg-gray-100 equivalent */
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
 
-
-  /* index.css */
+/* index.css */
 .range-input {
   -webkit-appearance: none;
   appearance: none;
@@ -28,7 +27,7 @@ body {
   height: 20px; /* Size of the thumb */
   width: 20px;
   border-radius: 50%;
-  background: #1F2937; /* Tailwind bg-gray-800 */
+  background: #1f2937; /* Tailwind bg-gray-800 */
   cursor: pointer;
 }
 
@@ -36,7 +35,7 @@ body {
   height: 20px;
   width: 20px;
   border-radius: 50%;
-  background: #1F2937; /* Tailwind bg-gray-800 */
+  background: #1f2937; /* Tailwind bg-gray-800 */
   cursor: pointer;
 }
 
@@ -44,17 +43,18 @@ body {
   height: 20px;
   width: 20px;
   border-radius: 50%;
-  background: #1F2937; /* Tailwind bg-gray-800 */
+  background: #1f2937; /* Tailwind bg-gray-800 */
   cursor: pointer;
 }
 
 .no-scrollbar {
   -ms-overflow-style: none; /* Internet Explorer 10+ */
-  scrollbar-width: none;    /* Firefox */
+  scrollbar-width: none; /* Firefox */
 }
 
 .no-scrollbar::-webkit-scrollbar {
   display: none; /* WebKit */
 }
-
-  
+td {
+  height: 50px !important;
+}
