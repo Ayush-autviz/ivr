@@ -3,6 +3,7 @@ import {
   Search,
   ChevronDownIcon,
   ChevronUpIcon,
+  ArrowUpRight,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -30,6 +31,7 @@ const Home = () => {
   const [optionData, setOptionData] = useState(null);
   const [analyseLoading, setAnalyseLoading] = useState(false);
   const [analyseError, setAnalysetError] = useState(false);
+  const [monitorLoading,setMonitorLoading] = useState(false);
   const intervalRef = useRef(null);
 
   const handleAnalyse = () => {
@@ -326,6 +328,23 @@ const Home = () => {
           </div>
         </div>
       </div>
+
+      {
+  optionData && (
+    <div className="flex justify-end items-center mx-8 text-sm mb-5">
+      <div className="rounded-full w-fit py-2 px-4 font-medium bg-gray-800 flex flex-row items-center justify-center gap-5">
+        <div className="text-white">Monitor</div>
+        {monitorLoading ? (
+          <div className="flex items-center">
+            <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
+          </div>
+        ) : (
+          <ArrowUpRight color="white" size={20} />
+        )}
+      </div>
+    </div>
+  )
+}
       <div className="flex justify-center items-center mx-8 mb-10">
         {optionData ? (
           <OptionChain data={optionData} />

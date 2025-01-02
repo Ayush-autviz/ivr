@@ -463,16 +463,16 @@ const OptionChain = ({ data }) => {
 
   const handleSelection = (type, row) => {
     if (type === "call") {
-      if (calls.includes(row)) {
-        setCalls(calls.filter((item) => item !== row)); // Update state with filtered array
+      if (calls.includes(row.details.ticker)) {
+        setCalls(calls.filter((item) => item !== row.details.ticker)); // Update state with filtered array
       } else {
-        setCalls([...calls, row]); // Add the row to the calls array
+        setCalls([...calls, row.details.ticker]); // Add the row to the calls array
       }
     } else {
-      if (puts.includes(row)) {
-        setPuts(puts.filter((item) => item !== row)); // Update state with filtered array
+      if (puts.includes(row.details.ticker)) {
+        setPuts(puts.filter((item) => item !== row.details.ticker)); // Update state with filtered array
       } else {
-        setPuts([...puts, row]); // Add the row to the puts array
+        setPuts([...puts, row.details.ticker]); // Add the row to the puts array
       }
     }
   };
@@ -537,18 +537,31 @@ const OptionChain = ({ data }) => {
                   } hover:bg-blue-50/50 transition-colors border-b-[2px] border-solid border-gray-600`}
                 >
                   <td className="p-3 border-b text-center border-gray-100">
-                    {(
-                      (row.greeks?.vega / row?.last_quote.ask +
-                        row.last_quote.bid / 2) *
-                      100
-                    ).toFixed(2) + "%" || "N/A"}
+                  {
+  row?.greeks?.vega !== undefined &&
+  row?.last_quote?.ask > 0 &&
+  row?.last_quote?.bid !== undefined
+    ? (
+        ((row.greeks?.vega / row.last_quote.ask) +
+          row.last_quote.bid / 2) *
+        100
+      ).toFixed(2) + "%"
+    : "N/A"
+}
                   </td>
                   <td className="p-3 border-b text-center border-gray-100">
-                    {(
-                      (row.greeks?.theta / row?.last_quote.ask +
-                        row.last_quote.bid / 2) *
-                      100
-                    ).toFixed(2) + "%" || "N/A"}
+                  {
+  row?.greeks?.theta !== undefined &&
+  row?.last_quote?.ask > 0 &&
+  row?.last_quote?.bid !== undefined
+    ? (
+        ((row.greeks?.theta / row.last_quote.ask) +
+          row.last_quote.bid / 2) *
+        100
+      ).toFixed(2) + "%"
+    : "N/A"
+}
+
                   </td>
                   <td className="p-3 border-b text-center border-gray-100">
                     {(row.implied_volatility
@@ -591,7 +604,7 @@ const OptionChain = ({ data }) => {
                   <td className="p-3 border-b text-center border-gray-100">
                     <input
                       type="checkbox"
-                      checked={calls.includes(row)}
+                      checked={calls.includes(row.details.ticker)}
                       onChange={() => handleSelection("call", row)}
                     />
                   </td>
@@ -613,18 +626,31 @@ const OptionChain = ({ data }) => {
                   } hover:bg-blue-50/50 transition-colors border-b-[2px] border-solid border-gray-600`}
                 >
                   <td className="p-3 border-b text-center border-gray-100">
-                    {(
-                      (row.greeks?.vega / row?.last_quote.ask +
-                        row.last_quote.bid / 2) *
-                      100
-                    ).toFixed(2) + "%" || "N/A"}
+                  {
+  row?.greeks?.vega !== undefined &&
+  row?.last_quote?.ask > 0 &&
+  row?.last_quote?.bid !== undefined
+    ? (
+        ((row.greeks?.vega / row.last_quote.ask) +
+          row.last_quote.bid / 2) *
+        100
+      ).toFixed(2) + "%"
+    : "N/A"
+}
                   </td>
                   <td className="p-3 border-b text-center border-gray-100">
-                    {(
-                      (row.greeks?.theta / row?.last_quote.ask +
-                        row.last_quote.bid / 2) *
-                      100
-                    ).toFixed(2) + "%" || "N/A"}
+                  {
+  row?.greeks?.theta !== undefined &&
+  row?.last_quote?.ask > 0 &&
+  row?.last_quote?.bid !== undefined
+    ? (
+        ((row.greeks?.theta / row.last_quote.ask) +
+          row.last_quote.bid / 2) *
+        100
+      ).toFixed(2) + "%"
+    : "N/A"
+}
+
                   </td>
                   <td className="p-3 border-b text-center border-gray-100">
                     {(row.implied_volatility
@@ -667,7 +693,7 @@ const OptionChain = ({ data }) => {
                   <td className="p-3 border-b text-center border-gray-100">
                     <input
                       type="checkbox"
-                      checked={calls.includes(row)}
+                      checked={calls.includes(row.details.ticker)}
                       onChange={() => handleSelection("call", row)}
                     />
                   </td>
@@ -796,7 +822,7 @@ const OptionChain = ({ data }) => {
                   <td className="p-3 border-b text-center border-gray-100">
                     <input
                       type="checkbox"
-                      checked={puts.includes(row)}
+                      checked={puts.includes(row.details.ticker)}
                       onChange={() => handleSelection("put", row)}
                     />
                   </td>
@@ -832,18 +858,31 @@ const OptionChain = ({ data }) => {
                       : "N/A") + "%"}
                   </td>
                   <td className="p-3 border-b text-center border-gray-100">
-                    {(
-                      (row.greeks?.theta / row?.last_quote.ask +
-                        row.last_quote.bid / 2) *
-                      100
-                    ).toFixed(2) + "%" || "N/A"}
+                  {
+  row?.greeks?.theta !== undefined &&
+  row?.last_quote?.ask > 0 &&
+  row?.last_quote?.bid !== undefined
+    ? (
+        ((row.greeks?.theta / row.last_quote.ask) +
+          row.last_quote.bid / 2) *
+        100
+      ).toFixed(2) + "%"
+    : "N/A"
+}
+
                   </td>
                   <td className="p-3 border-b text-center border-gray-100">
-                    {(
-                      (row.greeks?.vega / row?.last_quote.ask +
-                        row.last_quote.bid / 2) *
-                      100
-                    ).toFixed(2) + "%" || "N/A"}
+                  {
+  row?.greeks?.vega !== undefined &&
+  row?.last_quote?.ask > 0 &&
+  row?.last_quote?.bid !== undefined
+    ? (
+        ((row.greeks?.vega / row.last_quote.ask) +
+          row.last_quote.bid / 2) *
+        100
+      ).toFixed(2) + "%"
+    : "N/A"
+}
                   </td>
                 </tr>
               ))}
@@ -865,7 +904,7 @@ const OptionChain = ({ data }) => {
                   <td className="p-3 border-b text-center border-gray-100">
                     <input
                       type="checkbox"
-                      checked={puts.includes(row)}
+                      checked={puts.includes(row.details.ticker)}
                       onChange={() => handleSelection("put", row)}
                     />
                   </td>
@@ -908,18 +947,31 @@ const OptionChain = ({ data }) => {
                       : "N/A") + "%"}
                   </td>
                   <td className="p-3 border-b text-center border-gray-100">
-                    {(
-                      (row.greeks?.theta / row?.last_quote.ask +
-                        row.last_quote.bid / 2) *
-                      100
-                    ).toFixed(2) + "%" || "N/A"}
+                  {
+  row?.greeks?.theta !== undefined &&
+  row?.last_quote?.ask > 0 &&
+  row?.last_quote?.bid !== undefined
+    ? (
+        ((row.greeks?.theta / row.last_quote.ask) +
+          row.last_quote.bid / 2) *
+        100
+      ).toFixed(2) + "%"
+    : "N/A"
+}
+
                   </td>
                   <td className="p-3 border-b text-center border-gray-100">
-                    {(
-                      (row.greeks?.vega / row?.last_quote.ask +
-                        row.last_quote.bid / 2) *
-                      100
-                    ).toFixed(2) + "%" || "N/A"}
+                  {
+  row?.greeks?.vega !== undefined &&
+  row?.last_quote?.ask > 0 &&
+  row?.last_quote?.bid !== undefined
+    ? (
+        ((row.greeks?.vega / row.last_quote.ask) +
+          row.last_quote.bid / 2) *
+        100
+      ).toFixed(2) + "%"
+    : "N/A"
+}
                   </td>
                 </tr>
               ))}
