@@ -13,7 +13,6 @@ import {
 
 //import { ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
 import Loading from "../components/Loading";
-import { useOptionChainDetails } from "../hooks/usePolygonWebSocket";
 import OptionChain from "../components/OptionChain";
 
 const Home = () => {
@@ -31,6 +30,7 @@ const Home = () => {
   const [optionData, setOptionData] = useState(null);
   const [analyseLoading, setAnalyseLoading] = useState(false);
   const [analyseError, setAnalysetError] = useState(false);
+  const intervalRef = useRef(null);
 
   const handleAnalyse = () => {
     if (!ticker) {
@@ -51,8 +51,9 @@ const Home = () => {
   };
 
   const fetchData = async () => {
+    setAnalyseLoading(true);
+
     try {
-      setAnalyseLoading(true);
       const data = await fetchOptionStrikes(ticker, date, strikeRate);
       console.log(data, "data");
       setOptionData(data);
@@ -61,6 +62,22 @@ const Home = () => {
       setAnalyseLoading(false);
       console.log(error);
     }
+
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+
+    intervalRef.current = setInterval(async () => {
+      try {
+        const data = await fetchOptionStrikes(ticker, date, strikeRate);
+        console.log(data, "data");
+        setOptionData(data);
+        setAnalyseLoading(false);
+      } catch (error) {
+        setAnalyseLoading(false);
+        console.log(error);
+      }
+    }, 5000);
   };
 
   const handleChangeStrike = (event) => {
@@ -111,7 +128,7 @@ const Home = () => {
       setexpLoading(true);
       const res = await fetchOptionExpiryDates(stock.symbol);
       setExpiry(res);
-    //  setIsOpen(true);
+      //  setIsOpen(true);
       setexpLoading(false);
     } catch (error) {
       console.error("Error fetching option expiry dates:", error);
@@ -160,7 +177,7 @@ const Home = () => {
                       onClick={() => handleClick(stock)}
                     >
                       <span className="font-medium text-gray-800  truncate overflow-hidden whitespace-nowrap block">
-                        {stock.symbol}
+                      {`(${stock.symbol}) ${stock.name} `}
                       </span>
                     </li>
                   ))}
