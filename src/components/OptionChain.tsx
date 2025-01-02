@@ -1,11 +1,9 @@
-
 // const data =  [
 //       {
 //         "break_even_price": 13.45,
 //         "day": {
 
 import { useState } from "react";
-
 
 //         },
 //         "details": {
@@ -455,17 +453,13 @@ const OptionChain = ({ data }) => {
     aboveCurrentPriceCall,
     belowCurrentPricePut,
     aboveCurrentPricePut,
-    currentPriceCall
+    currentPriceCall,
   } = data;
 
-  const [selectedOptions, setSelectedOptions] = useState({
-    calls: [],
-    puts: [],
-  });
-  const [calls, setCalls] = useState([])
-  const [puts, setPuts] = useState([])
+  const [calls, setCalls] = useState([]);
+  const [puts, setPuts] = useState([]);
 
-  console.log(calls, puts)
+  console.log(belowCurrentPriceCall, "belowprice");
 
   const handleSelection = (type, row) => {
     if (type === "call") {
@@ -482,7 +476,6 @@ const OptionChain = ({ data }) => {
       }
     }
   };
-  
 
   return (
     <div className="relative overflow-x-auto border rounded-2xl overflow-hidden">
@@ -494,50 +487,106 @@ const OptionChain = ({ data }) => {
         {/* Left section */}
         <div className="w-[45%] overflow-x-auto no-scrollbar">
           {/* <div className="p-3 bg-gray-100 text-center font-bold text-gray-800">Call</div> */}
-          <table className="w-full border-collapse text-sm">
+          <table className="w-full border-collapse text-[11px]">
             <thead>
-              <tr className="bg-gray-50">
-                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">Vega</th>
-                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">Theta</th>
-                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">Implied Volatility</th>
-                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">Volume</th>
-                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">OI</th>
-                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">Spread</th>
-                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">Ask Size</th>
-                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">Ask</th>
-                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">Bid Size</th>
-                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">Bid</th>
-                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">DFM</th>
-                <th className="p-3 text-center font-semibold text-gray-600 border-b">Select</th>
-
+              <tr className="bg-gray-50 border-b-[2px] border-solid border-gray-600">
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">
+                  Vega
+                </th>
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">
+                  Theta
+                </th>
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">
+                  IV%
+                </th>
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">
+                  Vol
+                </th>
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">
+                  OI
+                </th>
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">
+                  Spread
+                </th>
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">
+                  Ask Size
+                </th>
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">
+                  Ask $
+                </th>
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">
+                  Bid Size
+                </th>
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">
+                  Bid $
+                </th>
+                {/* <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">
+                  DFM
+                </th> */}
+                <th className="p-3 text-center font-semibold text-gray-600 border-b">
+                  Select
+                </th>
               </tr>
             </thead>
             <tbody>
               {belowCurrentPriceCall?.map((row, index) => (
                 <tr
                   key={`left-above-${index}`}
-                  className={`${index % 2 === 0 ? "bg-gray-50/50" : "bg-white"
-                    } hover:bg-blue-50/50 transition-colors`}
+                  className={`${
+                    index % 2 === 0 ? "bg-gray-50/50" : "bg-white"
+                  } hover:bg-blue-50/50 transition-colors border-b-[2px] border-solid border-gray-600`}
                 >
-
-                  <td className="p-3 border-b text-center border-gray-100">{row.greeks?.vega?.toFixed(2) || "N/A"}</td>
-                  <td className="p-3 border-b text-center border-gray-100">{row.greeks?.theta?.toFixed(2) || "N/A"}</td>
-                  <td className="p-3 border-b text-center border-gray-100">{row.implied_volatility?.toFixed(2) || "N/A"}</td>
-                  <td className="p-3 border-b text-center border-gray-100">{row.day.volume || "N/A"}</td>
-                  <td className="p-3 border-b text-center border-gray-100">{row.open_interest || "N/A"}</td>
                   <td className="p-3 border-b text-center border-gray-100">
                     {(
-                      ((row.last_quote.ask - row.last_quote.bid) /
-                        ((row.last_quote.ask + row.last_quote.bid) / 2)) || 0
-                    ).toFixed(2)}
+                      (row.greeks?.vega / row?.last_quote.ask +
+                        row.last_quote.bid / 2) *
+                      100
+                    ).toFixed(2) + "%" || "N/A"}
                   </td>
-                  <td className="p-3 border-b text-center border-gray-100">{row.last_quote.ask_size}</td>
-                  <td className="p-3 border-b text-center border-gray-100">{row.last_quote.ask}</td>
-                  <td className="p-3 border-b text-center border-gray-100">{row.last_quote.bid_size}</td>
-                  <td className="p-3 border-b text-center border-gray-100">{row.last_quote.bid}</td>
                   <td className="p-3 border-b text-center border-gray-100">
-  {((row.details.strike_price - currentPriceCall) / row.details.strike_price * 100).toFixed(2)}%
-</td>
+                    {(
+                      (row.greeks?.theta / row?.last_quote.ask +
+                        row.last_quote.bid / 2) *
+                      100
+                    ).toFixed(2) + "%" || "N/A"}
+                  </td>
+                  <td className="p-3 border-b text-center border-gray-100">
+                  {(row.implied_volatility ? (row.implied_volatility * 100).toFixed(2) : "N/A") + "%"}
+                  </td>
+                  <td className="p-3 border-b text-center border-gray-100">
+                    {row.day.volume.toLocaleString("en-US") || "N/A"}
+                  </td>
+                  <td className="p-3 border-b text-center border-gray-100">
+                    {row.open_interest.toLocaleString("en-US") || "N/A"}
+                  </td>
+                  <td className="p-3 border-b text-center border-gray-100">
+                  {(
+  (
+    ((row.last_quote.ask - row.last_quote.bid) / 
+    ((row.last_quote.ask + row.last_quote.bid) / 2)) * 100
+  ) || 0
+).toFixed(2) + '%'}
+                  </td>
+                  <td className="p-3 border-b text-center border-gray-100">
+                    {row.last_quote.ask_size}
+                  </td>
+                  <td className="p-3 border-b text-center border-gray-100">
+                    ${row.last_quote.ask}
+                  </td>
+                  <td className="p-3 border-b text-center border-gray-100">
+                    {row.last_quote.bid_size}
+                  </td>
+                  <td className="p-3 border-b text-center border-gray-100">
+                    ${row.last_quote.bid}
+                  </td>
+                  {/* <td className="p-3 border-b text-center border-gray-100">
+                    {(
+                      ((row.details.strike_price - currentPriceCall) /
+                        row.details.strike_price) *
+                      100
+                    ).toFixed(2)}
+                    %
+                  </td> */}
                   <td className="p-3 border-b text-center border-gray-100">
                     <input
                       type="checkbox"
@@ -545,38 +594,74 @@ const OptionChain = ({ data }) => {
                       onChange={() => handleSelection("call", row)}
                     />
                   </td>
-
                 </tr>
               ))}
-              <tr className="bg-blue-100">
-                <td className="p-3 text-center font-bold text-blue-800" colSpan={12}>
+              <tr className="bg-blue-100 border-b-[2px] border-solid border-gray-600">
+                <td
+                  className="p-3 text-center font-bold text-blue-800"
+                  colSpan={12}
+                >
                   <>&nbsp;</>
                 </td>
               </tr>
               {aboveCurrentPriceCall?.map((row, index) => (
                 <tr
                   key={`left-below-${index}`}
-                  className={`${index % 2 === 0 ? "bg-gray-50/50" : "bg-white"
-                    } hover:bg-blue-50/50 transition-colors`}
+                  className={`${
+                    index % 2 === 0 ? "bg-gray-50/50" : "bg-white"
+                  } hover:bg-blue-50/50 transition-colors border-b-[2px] border-solid border-gray-600`}
                 >
-                  <td className="p-3 border-b text-center border-gray-100">{row.greeks?.vega?.toFixed(2) || "N/A"}</td>
-                  <td className="p-3 border-b text-center border-gray-100">{row.greeks?.theta?.toFixed(2) || "N/A"}</td>
-                  <td className="p-3 border-b text-center border-gray-100">{row.implied_volatility?.toFixed(2) || "N/A"}</td>
-                  <td className="p-3 border-b text-center border-gray-100">{row.day.volume || "N/A"}</td>
-                  <td className="p-3 border-b text-center border-gray-100">{row.open_interest || "N/A"}</td>
                   <td className="p-3 border-b text-center border-gray-100">
                     {(
-                      ((row.last_quote.ask - row.last_quote.bid) /
-                        ((row.last_quote.ask + row.last_quote.bid) / 2)) || 0
-                    ).toFixed(2)}
+                      (row.greeks?.vega / row?.last_quote.ask +
+                        row.last_quote.bid / 2) *
+                      100
+                    ).toFixed(2) + "%" || "N/A"}
                   </td>
-                  <td className="p-3 border-b text-center border-gray-100">{row.last_quote.ask_size}</td>
-                  <td className="p-3 border-b text-center border-gray-100">{row.last_quote.ask}</td>
-                  <td className="p-3 border-b text-center border-gray-100">{row.last_quote.bid_size}</td>
-                  <td className="p-3 border-b text-center border-gray-100">{row.last_quote.bid}</td>
                   <td className="p-3 border-b text-center border-gray-100">
-  {((row.details.strike_price -currentPriceCall) / row.details.strike_price * 100).toFixed(2)}%
-</td>
+                    {(
+                      (row.greeks?.theta / row?.last_quote.ask +
+                        row.last_quote.bid / 2) *
+                      100
+                    ).toFixed(2) + "%" || "N/A"}
+                  </td>
+                  <td className="p-3 border-b text-center border-gray-100">
+                  {(row.implied_volatility ? (row.implied_volatility * 100).toFixed(2) : "N/A") + "%"}
+                  </td>
+                  <td className="p-3 border-b text-center border-gray-100">
+                    {row.day.volume.toLocaleString("en-US") || "N/A"}
+                  </td>
+                  <td className="p-3 border-b text-center border-gray-100">
+                    {row.open_interest.toLocaleString("en-US") || "N/A"}
+                  </td>
+                  <td className="p-3 border-b text-center border-gray-100">
+                  {(
+  (
+    ((row.last_quote.ask - row.last_quote.bid) / 
+    ((row.last_quote.ask + row.last_quote.bid) / 2)) * 100
+  ) || 0
+).toFixed(2) + '%'}
+                  </td>
+                  <td className="p-3 border-b text-center border-gray-100">
+                    {row.last_quote.ask_size}
+                  </td>
+                  <td className="p-3 border-b text-center border-gray-100">
+                    ${row.last_quote.ask}
+                  </td>
+                  <td className="p-3 border-b text-center border-gray-100">
+                    {row.last_quote.bid_size}
+                  </td>
+                  <td className="p-3 border-b text-center border-gray-100">
+                    ${row.last_quote.bid}
+                  </td>
+                  {/* <td className="p-3 border-b text-center border-gray-100">
+                    {(
+                      ((row.details.strike_price - currentPriceCall) /
+                        row.details.strike_price) *
+                      100
+                    ).toFixed(2)}
+                    %
+                  </td> */}
                   <td className="p-3 border-b text-center border-gray-100">
                     <input
                       type="checkbox"
@@ -584,7 +669,6 @@ const OptionChain = ({ data }) => {
                       onChange={() => handleSelection("call", row)}
                     />
                   </td>
-
                 </tr>
               ))}
             </tbody>
@@ -594,28 +678,62 @@ const OptionChain = ({ data }) => {
         {/* Fixed middle section */}
         <div className="w-[10%] bg-gray-100">
           {/* <div className="p-3 bg-gray-100 text-center font-bold text-gray-800"><>&nbsp;</></div> */}
-          <table className="w-full border-collapse text-sm">
+          <table className="w-full  text-[11px] bg-blue-50">
             <thead>
-              <tr>
-                <th className="p-3 text-center font-bold text-gray-800 border-b">Strike Price</th>
-                
+              <tr className="border-b-[2px] border-solid border-gray-600">
+                <th className="p-3 text-center  font-bold text-gray-800 border-b">
+                  Strike
+                </th>
+                <th className="p-3 text-center font-bold text-nowrap text-gray-600 border-b">
+                  DFM
+                </th>
               </tr>
             </thead>
             <tbody>
               {belowCurrentPriceCall?.map((row, index) => (
-                <tr key={`strike-above-${index}`} className="hover:bg-blue-50/50 transition-colors">
-                  <td className="p-3 border-b border-gray-100 text-center font-medium">
+                <tr
+                  key={`strike-above-${index}`}
+                  className="hover:bg-blue-50/50 transition-colors border-b-[2px] border-solid border-gray-600"
+                >
+                  <td className="p-3  border-gray-100 text-center font-medium">
                     {row.details.strike_price}
+                  </td>
+                  <td className="p-3  text-center font-medium border-gray-100">
+                    {(
+                      ((row.details.strike_price - currentPriceCall) /
+                        row.details.strike_price) *
+                      100
+                    ).toFixed(2)}
+                    %
                   </td>
                 </tr>
               ))}
-              <tr className="bg-blue-100">
-                <td className="p-3 text-center font-bold text-blue-800">{currentPriceCall}</td>
+
+              <tr className="bg-blue-100 border-b-[2px] border-solid border-gray-600">
+                <td
+                  className="p-3 text-center text-[11px] font-bold text-blue-800"
+                  colSpan={2}
+                >
+                  {currentPriceCall}
+                </td>
               </tr>
+
               {aboveCurrentPriceCall?.map((row, index) => (
-                <tr key={`strike-below-${index}`} className="hover:bg-blue-50/50 transition-colors">
-                  <td className="p-3 border-b border-gray-100 text-center font-medium">
+                <tr
+                  key={`strike-below-${index}`}
+                  className="hover:bg-blue-50/50 transition-colors border-b-[2px] border-solid border-gray-600"
+                >
+                  <td className="p-3  border-gray-100 text-center font-medium">
                     {row.details.strike_price}
+                  </td>
+
+                  <td className="p-3  text-center border-gray-100">
+                    {(
+                      ((row.details.strike_price - currentPriceCall) /
+                        row.details.strike_price) *
+                      100
+                    ).toFixed(2)}
+                    %
                   </td>
                 </tr>
               ))}
@@ -626,29 +744,52 @@ const OptionChain = ({ data }) => {
         {/* Right section */}
         <div className="w-[45%] overflow-x-auto no-scrollbar">
           {/* <div className="p-3 bg-gray-100 text-center  font-bold text-gray-800">Put</div> */}
-          <table className="w-full border-collapse text-sm">
+          <table className="w-full border-collapse   text-[11px] ">
             <thead>
-              <tr className="bg-gray-50">
-                <th className="p-3 text-center font-semibold text-gray-600 border-b">Select</th>
-                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">DFM</th>
-                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">Bid</th>
-                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">Bid Size</th>
-                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">Ask</th>
-                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">Ask Size</th>
-                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">Spread</th>
-                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">OI</th>
-                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">Volume</th>
-                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">Implied Volatility</th>
-                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">Theta</th>
-                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">Vega</th>
+              <tr className="bg-gray-50 border-b-[2px] border-solid border-gray-600">
+                <th className="p-3 text-center font-semibold text-gray-600 border-b">
+                  Select
+                </th>
+
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">
+                  Bid $
+                </th>
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">
+                  Bid Size
+                </th>
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">
+                  Ask $
+                </th>
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">
+                  Ask Size
+                </th>
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">
+                  Spread
+                </th>
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">
+                  OI
+                </th>
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">
+                  Vol
+                </th>
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">
+                  IV%
+                </th>
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">
+                  Theta
+                </th>
+                <th className="p-3 text-center font-semibold text-nowrap text-gray-600 border-b">
+                  Vega
+                </th>
               </tr>
             </thead>
             <tbody>
               {belowCurrentPricePut?.map((row, index) => (
                 <tr
                   key={`right-above-${index}`}
-                  className={`${index % 2 === 0 ? "bg-gray-50/50" : "bg-white"
-                    } hover:bg-blue-50/50 transition-colors`}
+                  className={`${
+                    index % 2 === 0 ? "bg-gray-50/50" : "bg-white"
+                  } hover:bg-blue-50/50 transition-colors border-b-[2px] border-solid border-gray-600`}
                 >
                   <td className="p-3 border-b text-center border-gray-100">
                     <input
@@ -657,36 +798,66 @@ const OptionChain = ({ data }) => {
                       onChange={() => handleSelection("put", row)}
                     />
                   </td>
+
                   <td className="p-3 border-b text-center border-gray-100">
-  {((row.details.strike_price - currentPriceCall) / row.details.strike_price * 100).toFixed(2)}%
-</td>
-                  <td className="p-3 border-b text-center border-gray-100">{row.last_quote.bid}</td>
-                  <td className="p-3 border-b text-center border-gray-100">{row.last_quote.bid_size}</td>
-                  <td className="p-3 border-b text-center border-gray-100">{row.last_quote.ask}</td>
-                  <td className="p-3 border-b text-center border-gray-100">{row.last_quote.ask_size}</td>
+                    ${row.last_quote.bid}
+                  </td>
+                  <td className="p-3 border-b text-center border-gray-100">
+                    {row.last_quote.bid_size}
+                  </td>
+                  <td className="p-3 border-b text-center border-gray-100">
+                    ${row.last_quote.ask}
+                  </td>
+                  <td className="p-3 border-b text-center border-gray-100">
+                    {row.last_quote.ask_size}
+                  </td>
+                  <td className="p-3 border-b text-center border-gray-100">
+                  {(
+  (
+    ((row.last_quote.ask - row.last_quote.bid) / 
+    ((row.last_quote.ask + row.last_quote.bid) / 2)) * 100
+  ) || 0
+).toFixed(2) + '%'}
+                  </td>
+                  <td className="p-3 border-b text-center border-gray-100">
+                    {row.open_interest.toLocaleString("en-US") || "N/A"}
+                  </td>
+                  <td className="p-3 border-b text-center border-gray-100">
+                    {row.day.volume.toLocaleString("en-US") || "N/A"}
+                  </td>
+                  <td className="p-3 border-b text-center border-gray-100">
+                  {(row.implied_volatility ? (row.implied_volatility * 100).toFixed(2) : "N/A") + "%"}
+                  </td>
                   <td className="p-3 border-b text-center border-gray-100">
                     {(
-                      ((row.last_quote.ask - row.last_quote.bid) /
-                        ((row.last_quote.ask + row.last_quote.bid) / 2)) || 0
-                    ).toFixed(2)}
+                      (row.greeks?.theta / row?.last_quote.ask +
+                        row.last_quote.bid / 2) *
+                      100
+                    ).toFixed(2) + "%" || "N/A"}
                   </td>
-                  <td className="p-3 border-b text-center border-gray-100">{row.open_interest || "N/A"}</td>
-                  <td className="p-3 border-b text-center border-gray-100">{row.day.volume || "N/A"}</td>
-                  <td className="p-3 border-b text-center border-gray-100">{row.implied_volatility?.toFixed(2) || "N/A"}</td>
-                  <td className="p-3 border-b text-center border-gray-100">{row.greeks?.theta?.toFixed(2) || "N/A"}</td>
-                  <td className="p-3 border-b text-center border-gray-100">{row.greeks?.vega?.toFixed(2) || "N/A"}</td>
+                  <td className="p-3 border-b text-center border-gray-100">
+                    {(
+                      (row.greeks?.vega / row?.last_quote.ask +
+                        row.last_quote.bid / 2) *
+                      100
+                    ).toFixed(2) + "%" || "N/A"}
+                  </td>
                 </tr>
               ))}
-              <tr className="bg-blue-100">
-                <td className="p-3 text-center font-bold text-blue-800" colSpan={12}>
+              <tr className="bg-blue-100 border-b-[2px] border-solid border-gray-600">
+                <td
+                  className="p-3 text-center font-bold text-blue-800"
+                  colSpan={12}
+                >
                   <>&nbsp;</>
                 </td>
               </tr>
               {aboveCurrentPricePut?.map((row, index) => (
                 <tr
                   key={`right-below-${index}`}
-                  className={`${index % 2 === 0 ? "bg-gray-50/50" : "bg-white"
-                    } hover:bg-blue-50/50 transition-colors`}
+                  className={`${
+                    index % 2 === 0 ? "bg-gray-50/50" : "bg-white"
+                  } hover:bg-blue-50/50 transition-colors border-b-[2px] border-solid border-gray-600`}
                 >
                   <td className="p-3 border-b text-center border-gray-100">
                     <input
@@ -695,24 +866,57 @@ const OptionChain = ({ data }) => {
                       onChange={() => handleSelection("put", row)}
                     />
                   </td>
+                  {/* <td className="p-3 border-b text-center border-gray-100">
+                    {(
+                      ((row.details.strike_price - currentPriceCall) /
+                        row.details.strike_price) *
+                      100
+                    ).toFixed(2)}
+                    %
+                  </td> */}
                   <td className="p-3 border-b text-center border-gray-100">
-  {((row.details.strike_price - currentPriceCall) / row.details.strike_price * 100).toFixed(2)}%
-</td>
-                  <td className="p-3 border-b text-center border-gray-100">{row.last_quote.bid}</td>
-                  <td className="p-3 border-b text-center border-gray-100">{row.last_quote.bid_size}</td>
-                  <td className="p-3 border-b text-center border-gray-100">{row.last_quote.ask}</td>
-                  <td className="p-3 border-b text-center border-gray-100">{row.last_quote.ask_size}</td>
+                    ${row.last_quote.bid}
+                  </td>
+                  <td className="p-3 border-b text-center border-gray-100">
+                    {row.last_quote.bid_size}
+                  </td>
+                  <td className="p-3 border-b text-center border-gray-100">
+                    ${row.last_quote.ask}
+                  </td>
+                  <td className="p-3 border-b text-center border-gray-100">
+                    {row.last_quote.ask_size}
+                  </td>
+                  <td className="p-3 border-b text-center border-gray-100">
+                  {(
+  (
+    ((row.last_quote.ask - row.last_quote.bid) / 
+    ((row.last_quote.ask + row.last_quote.bid) / 2)) * 100
+  ) || 0
+).toFixed(2) + '%'}
+                  </td>
+                  <td className="p-3 border-b text-center border-gray-100">
+                    {row.open_interest.toLocaleString("en-US") || "N/A"}
+                  </td>
+                  <td className="p-3 border-b text-center border-gray-100">
+                    {row.day.volume.toLocaleString("en-US") || "N/A"}
+                  </td>
+                  <td className="p-3 border-b text-center border-gray-100">
+                  {(row.implied_volatility ? (row.implied_volatility * 100).toFixed(2) : "N/A") + "%"}
+                  </td>
                   <td className="p-3 border-b text-center border-gray-100">
                     {(
-                      ((row.last_quote.ask - row.last_quote.bid) /
-                        ((row.last_quote.ask + row.last_quote.bid) / 2)) || 0
-                    ).toFixed(2)}
+                      (row.greeks?.theta / row?.last_quote.ask +
+                        row.last_quote.bid / 2) *
+                      100
+                    ).toFixed(2) + "%" || "N/A"}
                   </td>
-                  <td className="p-3 border-b text-center border-gray-100">{row.open_interest || "N/A"}</td>
-                  <td className="p-3 border-b text-center border-gray-100">{row.day.volume || "N/A"}</td>
-                  <td className="p-3 border-b text-center border-gray-100">{row.implied_volatility?.toFixed(2) || "N/A"}</td>
-                  <td className="p-3 border-b text-center border-gray-100">{row.greeks?.theta?.toFixed(2) || "N/A"}</td>
-                  <td className="p-3 border-b text-center border-gray-100">{row.greeks?.vega?.toFixed(2) || "N/A"}</td>
+                  <td className="p-3 border-b text-center border-gray-100">
+                    {(
+                      (row.greeks?.vega / row?.last_quote.ask +
+                        row.last_quote.bid / 2) *
+                      100
+                    ).toFixed(2) + "%" || "N/A"}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -723,10 +927,4 @@ const OptionChain = ({ data }) => {
   );
 };
 
-
-
-
-
-
-
-export default OptionChain
+export default OptionChain;
