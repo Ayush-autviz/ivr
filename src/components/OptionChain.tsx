@@ -503,7 +503,7 @@ const OptionChain = ({ data }) => {
   };
 
   return (
-    <div className="overflow-hidden flex flex-col">
+    <div className="overflow-hidden flex flex-col w-[100%]">
       <div onClick={handleMonitor} className=" cursor-pointer flex justify-end items-center  text-sm mb-5 ">
         <div className="rounded-full w-fit py-2 px-4 font-medium bg-gray-800 flex flex-row items-center justify-center gap-5">
 
