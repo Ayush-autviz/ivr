@@ -19,6 +19,8 @@ const useTickerStore = create((set, get) => ({
     if (currentIntervalId) {
       clearInterval(currentIntervalId);
     }
+    
+    set({ivData:[]});
 
     // Fetch data immediately
     await get().fetchOptionsData(newTickers);
