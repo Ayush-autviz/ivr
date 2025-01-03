@@ -1,116 +1,152 @@
 import React, { useState, useEffect } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { POLYGON_API_KEY } from '../config/polygon';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend
+} from 'recharts';
+import useTickerStore from '../store/tickerStore';
 
-const OptionsIVChart = ({ tickers}) => {
-  const [ivData, setIvData] = useState([]);
-  const [error, setError] = useState(null);
-
-  const fetchOptionsData = async () => {
-    try {
-      const timestamp = Math.floor(Date.now() / 1000);
-      const tickerString = tickers.join(',');
-      
-      const response = await fetch(
-        `https://api.polygon.io/v3/snapshot?ticker.any_of=${tickerString}&apiKey=${POLYGON_API_KEY}`
-      );
-      const result = await response.json();
-
-      if (!result.results || result.results.length === 0) {
-        throw new Error('No valid data received');
-      }
-
-      const validResults = result.results.filter(item => 
-        item.options?.implied_volatility
-      );
-
-      if (validResults.length === 0) {
-        throw new Error('No valid implied volatility data');
-      }
-
-      const averageIV = validResults.reduce((sum, item) => 
-        sum + item.options.implied_volatility, 0
-      ) / validResults.length;
-
-      setIvData(prevData => [
-        ...prevData,
-        {
-          timestamp,
-          averageIV: (averageIV * 100).toFixed(2)
-        }
-      ]);
-      
-      setError(null);
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
-  useEffect(() => {
-    fetchOptionsData();
-    const interval = setInterval(fetchOptionsData, 5000);
-    return () => clearInterval(interval);
-  }, [tickers]);
+const OptionsIVChart = () => {
+  const { tickers, ivData, error,setError } = useTickerStore();
 
   const formatXAxis = (timestamp) => {
-    return new Date(timestamp * 1000).toLocaleTimeString();
+    const date = new Date(timestamp * 1000);
+    // Only show label if it's at the start of an hour
+    if (date.getMinutes() === 0) {
+      return date.toLocaleString('en-US', {
+        hour: 'numeric',
+        hour12: true
+      }).toLowerCase().replace(' ', '');
+    }
+    return '';
+  };
+
+  useEffect(()=>{
+        if(tickers.length<2){
+          setError("Select atleast two contracts to track")
+        }
+  },[tickers])
+
+  const CustomTooltip = ({ active, payload, label }) => {
+    console.log(active, payload, label);
+    if (active && payload && payload.length) {
+      const date = new Date(label * 1000);
+      return (
+        <div className="bg-white p-3 border border-gray-200 shadow-lg rounded-lg">
+          <p className="text-sm text-gray-600 mb-1">
+            {date.toLocaleString('en-US', {
+              hour: 'numeric',
+              minute: '2-digit',
+              hour12: true
+            }).toLowerCase()}
+          </p>
+          {/* <p className="text-sm font-semibold text-blue-600">
+            IV: {payload[0]?.value?.toFixed(2)}%
+          </p> */}
+        </div>
+      );
+    }
+    return null;
   };
 
   const CustomDot = (props) => {
-    const { cx, cy } = props;
+    const { cx, cy, payload } = props;
+    
+    // Don't render dots for null or undefined values
+    if (!payload.averageIV) return null;
+
     return (
-      <circle 
-        cx={cx} 
-        cy={cy} 
-        r={3} 
-        fill="#2563eb" 
-        stroke="white" 
+      <circle
+        cx={cx}
+        cy={cy}
+        r={0}
+        fill="#2563eb"
+        stroke="white"
         strokeWidth={2}
+        className="transition-all duration-300 ease-in-out hover:r-4"
       />
     );
   };
 
   return (
-    <div className="w-full max-w-4xl p-4 bg-white rounded-lg shadow-md">
-      <div className="mb-4">
-        <h2 className="text-xl font-bold text-gray-800">Average Implied Volatility</h2>
-        <p className="text-sm text-gray-600">Total data points: {ivData.length}</p>
+    <div className="w-full p-6 bg-white rounded-xl mx-10 shadow-lg">
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-gray-800">
+          Average Implied Volatility
+        </h2>
+        <p className="text-gray-600 mt-1">
+          {tickers?.length > 0 && `Tracking ${tickers.join(', ')}`}
+        </p>
       </div>
-      {/* {error ? (
-        <div className="p-4 text-red-500 bg-red-50 rounded">Error: {error}</div>
-      ) : ( */}
-        <div className="h-96">
+
+      {error ? (
+        <div className="p-4 text-red-500 bg-red-50 rounded-lg border border-red-100">
+           {error}
+        </div>
+      ) : (
+        <div className="h-[400px] mt-4">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={ivData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis 
-                dataKey="timestamp" 
+            <LineChart
+              data={ivData}
+              margin={{
+                top: 10,
+                right: 30,
+                left: 20,
+                bottom: 30,
+              }}
+            >
+              <CartesianGrid 
+                strokeDasharray="3 3" 
+                vertical={false}
+                stroke="#f0f0f0"
+              />
+              <XAxis
+                dataKey="timestamp"
                 tickFormatter={formatXAxis}
-                label={{ value: 'Time', position: 'bottom' }}
+                stroke="#6b7280"
+                tick={{ fill: '#6b7280', fontSize: 12 }}
+                axisLine={{ stroke: '#e5e7eb' }}
+                tickLine={{ stroke: '#e5e7eb' }}
+                padding={{ left: 30, right: 30 }}
               />
-              <YAxis 
-                label={{ 
-                  value: 'Implied Volatility (%)', 
-                  angle: -90, 
-                  position: 'left' 
-                }}
+              <YAxis
+                stroke="#6b7280"
+                tick={{ fill: '#6b7280', fontSize: 12 }}
+                axisLine={{ stroke: '#e5e7eb' }}
+                tickLine={{ stroke: '#e5e7eb' }}
+                tickFormatter={(value) => `${value}%`}
+                domain={['auto', 'auto']}
               />
-              <Tooltip 
-                labelFormatter={formatXAxis}
-                formatter={(value) => [`${value}%`, 'IV']}
+              <Tooltip content={<CustomTooltip />} />
+              <Legend 
+                verticalAlign="top" 
+                height={36}
+                formatter={() => 'Implied Volatility'}
               />
-              <Line 
-                type="monotone" 
-                dataKey="averageIV" 
+              <Line
+                type="monotone"
+                dataKey="averageIV"
                 stroke="#2563eb"
-                strokeWidth={2}
+                strokeWidth={2.5}
                 dot={<CustomDot />}
-                activeDot={{ r: 5, fill: "#2563eb", stroke: "white", strokeWidth: 2 }}
+                activeDot={{
+                  r: 6,
+                  fill: "#2563eb",
+                  stroke: "white",
+                  strokeWidth: 2,
+                }}
+                isAnimationActive={false}
+                connectNulls={true}
               />
             </LineChart>
           </ResponsiveContainer>
         </div>
-      {/* )} */}
+      )}
     </div>
   );
 };
