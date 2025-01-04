@@ -16,7 +16,7 @@ import useTickerStore from '../store/tickerStore';
 
 
 const OptionsIVChart = () => {
-  const { tickers, ivData, error, setError } = useTickerStore();
+  const { tickers, ivData, error, setError,ticker } = useTickerStore();
   const [sma, setSma] = useState('None');
   const [lma, setLma] = useState('None');
 
@@ -83,11 +83,21 @@ const OptionsIVChart = () => {
     <div className="w-full p-6 bg-white rounded-xl mx-10 shadow-lg">
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-800">
-          Average Implied Volatility
+        {ticker}-Average Implied Volatility
         </h2>
         <p className="text-gray-600 mt-1">
-          {tickers?.length > 0 && `Tracking ${tickers.join(', ')}`}
-        </p>
+  {tickers?.length > 0 && (
+    <>
+      Tracking:
+      {tickers.map((ticker, index) => (
+        <span key={index} className="ml-1">
+          {ticker.details?.strike_price} {ticker.details?.contract_type}
+          {index < tickers.length - 1 && ','}
+        </span>
+      ))}
+    </>
+  )}
+</p>
         
         <div className="flex gap-4 mt-4">
           <div className="w-48">

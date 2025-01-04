@@ -6,13 +6,24 @@ const useTickerStore = create((set, get) => ({
   ivData: [],
   error: null,
   intervalId: null,
+  ticker:null,
 
   setError: (error)=>{
     set({error})
   },
 
+  setTicker: (ticker)=>{
+    set({ticker})
+  },
+
   setTickers: async (newTickers) => {
     set({ tickers: newTickers });
+
+    const arrTickers = newTickers.map((row)=>{
+      return row.details.ticker;
+    })
+
+    console.log(arrTickers,'arrtickers');
 
     // Clear any existing interval when setting new tickers
     const currentIntervalId = get().intervalId;
@@ -23,11 +34,11 @@ const useTickerStore = create((set, get) => ({
     set({ivData:[]});
 
     // Fetch data immediately
-    await get().fetchOptionsData(newTickers);
+    await get().fetchOptionsData(arrTickers);
 
     // Set up an interval to fetch data every 5 seconds
     const newIntervalId = setInterval(() => {
-      get().fetchOptionsData(newTickers);
+      get().fetchOptionsData(arrTickers);
     }, 3000);
 
     set({ intervalId: newIntervalId });
