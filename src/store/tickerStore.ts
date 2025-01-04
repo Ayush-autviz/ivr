@@ -37,47 +37,64 @@ const useTickerStore = create((set, get) => ({
     try {
       const timestamp = Math.floor(Date.now() / 1000);
       const tickerString = tickers.join(',');
-
+  
       const response = await fetch(
         `https://api.polygon.io/v3/snapshot?ticker.any_of=${tickerString}&apiKey=${POLYGON_API_KEY}`
       );
       const result = await response.json();
-
+  
       if (!result.results || result.results.length === 0) {
         throw new Error('No valid data received');
       }
-
+  
       const validResults = result.results.filter((item) => 
         item.implied_volatility
       );
-
-      console.log(validResults,'validres')
-
+  
       if (validResults.length === 0) {
         throw new Error('No valid implied volatility data');
       }
-
+  
       const averageIV = validResults.reduce((sum, item) => {
         const truncatedIV = Math.floor(item.implied_volatility * 100) / 100; // Keep only two decimals
         return sum + truncatedIV;
       }, 0) / validResults.length;
-
-      console.log((averageIV * 100).toFixed(2),'average');
-
-      set((state) => ({
-        ivData: [
-          ...state.ivData,
-          {
-            timestamp,
-            averageIV: (averageIV * 100).toFixed(2),
-          },
-        ],
-        error: null,
-      }));
+  
+      const newPoint = {
+        timestamp,
+        averageIV: (averageIV * 100).toFixed(2),
+      };
+  
+      // Add SMA and LMA calculations
+      const smaOptions = ['5', '10', '20', '30', '40'];
+      const lmaOptions = ['50', '60', '75', '90', '120', '150'];
+      const periods = [...smaOptions, ...lmaOptions];
+  
+      set((state) => {
+        const updatedData = [...state.ivData, newPoint];
+        
+        // Calculate moving averages for the new point
+        periods.forEach((period) => {
+          const periodNum = parseInt(period, 10);
+          if (updatedData.length >= periodNum) {
+            const slice = updatedData.slice(-periodNum);
+            const sum = slice.reduce((acc, curr) => acc + parseFloat(curr.averageIV), 0);
+            newPoint[`MA${period}`] = (sum / periodNum).toFixed(2);
+          } else {
+            newPoint[`MA${period}`] = null; // Not enough data points
+          }
+        });
+  
+        return {
+          ivData: [...updatedData],
+          error: null,
+        };
+      });
     } catch (err) {
       set({ error: err.message });
     }
   },
+  
 
   clearInterval: () => {
     const currentIntervalId = get().intervalId;
