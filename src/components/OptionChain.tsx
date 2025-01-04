@@ -23,7 +23,7 @@ const OptionChain = ({ data }) => {
   const [monitorLoading, setMonitorLoading] = useState(false);
   const [monitorError, setMonitorError] = useState(false);
 
-  const { setTickers,setTicker } = useTickerStore();
+  const { setTickers,setTicker,addStock } = useTickerStore();
   const {ticker} = useAnalysisStore();
   const handleMonitor = () => {
     const length = calls.length + puts.length;
@@ -36,7 +36,28 @@ const OptionChain = ({ data }) => {
     }
     setMonitorLoading(true);
     setTicker(ticker);
-    setTickers([...callsRow, ...putsRow]);
+
+    const allData = [...callsRow,...putsRow]
+
+    const tickers = allData.map((item) => item.details.ticker).join(',');
+
+    // Generate the tracking string
+    const tracking = allData
+      .map((item) => `${item.details.strike_price} ${item.details.contract_type}`)
+      .join(', ');
+
+    console.log({
+      symbol:ticker,
+      tickers:tickers,
+      tracking: tracking
+    })
+
+    addStock({
+      symbol:ticker,
+      tickers:tickers,
+      tracking: tracking
+    })
+   // setTickers([...callsRow, ...putsRow]);
     setTimeout(() => {
       setMonitorLoading(false);
       navigate('monitor');
