@@ -27,14 +27,70 @@ const useAnalysisStore = create((set, get) => ({
   },
   setStrikeRate: (strikeRate) => set({ strikeRate }),
 
+  handleImpliedVolatility: (newData, previousOptionData) => {
+    // If it's the first fetch (no previous data), return as is
+    if (!previousOptionData) {
+      return newData;
+    }
+
+    // Deep clone the new data to avoid mutations
+    const processedData = JSON.parse(JSON.stringify(newData));
+    
+    // Process each category of options
+    const categories = [
+      'aboveCurrentPriceCall',
+      'aboveCurrentPricePut',
+      'belowCurrentPriceCall',
+      'belowCurrentPricePut'
+    ];
+
+    console.log(newData,'newdata');
+
+    categories.forEach(category => {
+      if (Array.isArray(processedData[category])) {
+        processedData[category] = processedData[category].map(newOption => {
+          // Skip if current option has valid IV
+          console.log('checking 2');
+          if (newOption.implied_volatility != null && newOption.implied_volatility !== undefined) {
+            return newOption;
+          }
+           console.log('checking');
+          // Find matching option in previous data based on strike and contract type
+          const matchingPreviousOption = previousOptionData[category]?.find(prevOption => 
+            prevOption.details.strike_price === newOption.details.strike_price &&
+            prevOption.details.contract_type === newOption.details.contract_type
+          );
+
+          console.log(matchingPreviousOption,'option')
+
+          // If matching option found and it has valid IV, use it
+          if (matchingPreviousOption?.implied_volatility != null && 
+              matchingPreviousOption?.implied_volatility !== undefined) {
+            return {
+              ...newOption,
+              implied_volatility: matchingPreviousOption.implied_volatility
+            };
+          }
+
+          return newOption;
+        });
+      }
+    });
+
+    return processedData;
+  },    
+
   // Data fetching actions
   fetchOptionData: async () => {
-    const { ticker, date, strikeRate } = get();
+    const store = get();
+    const { ticker, date, strikeRate, optionData: previousOptionData } = store;
     
     try {
       const data = await fetchOptionStrikes(ticker, date, strikeRate);
+      const processedData = store.handleImpliedVolatility(data, previousOptionData);
+
       set({ 
-        optionData: data,
+        optionData: processedData,
         analyseLoading: false,
         analyseError: false
       });
