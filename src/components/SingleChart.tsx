@@ -1,4 +1,5 @@
 import { Maximize2, Minimize2, X } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { Area, ComposedChart, Line, Tooltip, XAxis, YAxis } from "recharts";
 
 export default function SingleChart({
@@ -13,6 +14,15 @@ export default function SingleChart({
   minimizedCards,
   setMinimizedCards,
 }) {
+  const chartContainerRef = useRef(null);
+
+  useEffect(() => {
+    if (chartContainerRef.current && stock.ivData.length > 0) {
+      // Scroll to the rightmost position
+      chartContainerRef.current.scrollLeft =
+        chartContainerRef.current.scrollWidth;
+    }
+  }, [stock.ivData]);
   const formatXAxis = (timestamp) => {
     const date = new Date(timestamp * 1000);
     return date
@@ -173,6 +183,7 @@ export default function SingleChart({
         </div> */}
 
           <div
+            ref={chartContainerRef}
             onScroll={(e) => {
               let wrapper = document.querySelector(`.recharts-surface`);
               let graphWrapper = document.querySelector(`.graph-wrapper`);
