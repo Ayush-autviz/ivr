@@ -79,7 +79,23 @@ const useTickerStore = create((set, get) => ({
    //   stocks: state.stocks.filter((stock) => stock.symbol !== stockSymbol),
     }));
   },
-
+  removeStock: (stockSymbol) => {
+    const { activeIntervals } = get();
+  
+    if (activeIntervals[stockSymbol]) {
+      clearInterval(activeIntervals[stockSymbol]);
+    }
+  
+    set((state) => ({
+      // Remove the stock's interval
+      activeIntervals: {
+        ...state.activeIntervals,
+        [stockSymbol]: undefined, // Use `undefined` instead of `null` to signify removal
+      },
+      // Remove the stock from the stocks array
+     stocks: state.stocks.filter((stock) => stock.symbol !== stockSymbol),
+    }));
+  },
   setTickers: async (newTickers) => {
     set({ tickers: newTickers });
 

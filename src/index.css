@@ -58,3 +58,30 @@ body {
 td {
   height: 50px !important;
 }
+.graph-wrapper {
+  overflow-x: auto;
+  overflow-y: hidden;
+  width: 100%;
+}
+.app-container {
+  width: 100%;
+  height: 420px;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #ebebeb;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+  background: #396db6;
+}
