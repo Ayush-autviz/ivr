@@ -1,6 +1,6 @@
 import { Maximize2, Minimize2, X } from "lucide-react";
 import { useEffect, useRef } from "react";
-import { Area, ComposedChart, Line, Tooltip, XAxis, YAxis } from "recharts";
+import { createChart } from 'lightweight-charts';
 
 export default function SingleChart({
   stock,
@@ -15,75 +15,177 @@ export default function SingleChart({
   setMinimizedCards,
 }) {
   const chartContainerRef = useRef(null);
+  const chartRef = useRef(null);
+  const seriesRef = useRef([]);
+  const visibleLogicalRangeRef = useRef(null);
 
   useEffect(() => {
-    if (chartContainerRef.current && stock.ivData.length > 0) {
-      // Scroll to the rightmost position
-      chartContainerRef.current.scrollLeft =
-        chartContainerRef.current.scrollWidth;
+    if (!chartContainerRef.current || !stock.ivData.length) return;
+
+    const handleResize = () => {
+      chartRef.current?.applyOptions({
+        width: chartContainerRef.current.clientWidth,
+      });
+    };
+
+    // Create chart if it doesn't exist
+    if (!chartRef.current) {
+      const chart = createChart(chartContainerRef.current, {
+        layout: {
+          background: { color: '#ffffff' },
+          textColor: '#6b7280',
+        },
+        grid: {
+          vertLines: { color: '#e5e7eb' },
+          horzLines: { color: '#e5e7eb' },
+        },
+        rightPriceScale: {
+          borderColor: '#e5e7eb',
+          scaleMargins: {
+            top: 0.1,
+            bottom: 0.1,
+          },
+        },
+        timeScale: {
+          borderColor: '#e5e7eb',
+          timeVisible: true,
+          secondsVisible: false,
+        },
+        crosshair: {
+          mode: 1,
+        },
+        width: chartContainerRef.current.clientWidth,
+        height: 400,
+      });
+
+      // Store the visible range when user interacts with the chart
+      chart.timeScale().subscribeVisibleLogicalRangeChange(range => {
+        if (range) {
+          visibleLogicalRangeRef.current = range;
+        }
+      });
+
+      chartRef.current = chart;
+      window.addEventListener('resize', handleResize);
     }
-  }, [stock.ivData]);
-  const formatXAxis = (timestamp) => {
-    const date = new Date(timestamp * 1000);
-    return date
-      .toLocaleString("en-US", {
-        hour: "numeric",
-        minute: "2-digit",
+
+    const chart = chartRef.current;
+
+    // Remove existing series
+    seriesRef.current.forEach(series => {
+      chart.removeSeries(series);
+    });
+    seriesRef.current = [];
+
+    // Format data
+    const ivData = stock.ivData.map(item => ({
+      time: parseInt(item.timestamp),
+      value: parseFloat(item.averageIV)
+    })).filter(item => !isNaN(item.value));
+
+    // Add main IV area series
+    const areaSeries = chart.addAreaSeries({
+      lineColor: '#2563eb',
+      topColor: '#2563eb20',
+      bottomColor: '#2563eb05',
+      lineWidth: 2,
+      priceFormat: {
+        type: 'price',
+        precision: 2,
+        minMove: 0.01,
+      },
+    });
+    areaSeries.setData(ivData);
+    seriesRef.current.push(areaSeries);
+
+    // Add SMA if selected
+    if (sma !== 'None') {
+      const smaData = stock.ivData.map(item => ({
+        time: parseInt(item.timestamp),
+        value: parseFloat(item[`MA${sma}`])
+      })).filter(item => !isNaN(item.value));
+      
+      const smaSeries = chart.addLineSeries({
+        color: '#22c55e',
+        lineWidth: 2,
+        priceFormat: {
+          type: 'price',
+          precision: 2,
+          minMove: 0.01,
+        },
+      });
+      smaSeries.setData(smaData);
+      seriesRef.current.push(smaSeries);
+    }
+
+    // Add LMA if selected
+    if (lma !== 'None') {
+      const lmaData = stock.ivData.map(item => ({
+        time: parseInt(item.timestamp),
+        value: parseFloat(item[`MA${lma}`])
+      })).filter(item => !isNaN(item.value));
+      
+      const lmaSeries = chart.addLineSeries({
+        color: '#ef4444',
+        lineWidth: 2,
+        priceFormat: {
+          type: 'price',
+          precision: 2,
+          minMove: 0.01,
+        },
+      });
+      lmaSeries.setData(lmaData);
+      seriesRef.current.push(lmaSeries);
+    }
+
+    // Restore previous visible range if exists
+    if (visibleLogicalRangeRef.current) {
+      chart.timeScale().setVisibleLogicalRange(visibleLogicalRangeRef.current);
+    } else {
+      // Only scroll to the latest data on initial load
+      chart.timeScale().scrollToPosition(0, true);
+    }
+
+    // Format tooltip
+    chart.subscribeCrosshairMove(param => {
+      if (!param.time || !param.point) return;
+
+      const ivPoint = param.seriesData.get(seriesRef.current[0]); // Area series is always first
+      if (!ivPoint) return;
+
+      const tooltipEl = document.getElementById('chart-tooltip');
+      if (!tooltipEl) return;
+
+      const time = new Date(param.time * 1000).toLocaleString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
         hour12: true,
-      })
-      .toLowerCase();
-  };
+      }).toLowerCase();
 
-  const CustomTooltip = ({ active, payload, label }) => {
-    console.log(`MA${sma}`, "payload");
-    console.log(payload[0]?.payload[`MA(${sma})`], "ma5");
-    if (active && payload && payload.length) {
-      const date = new Date(label * 1000);
-      return (
-        <div className="bg-white p-3 border border-gray-200 shadow-lg rounded-lg">
-          <p className="text-sm text-gray-600 mb-1">
-            {date
-              .toLocaleString("en-US", {
-                hour: "numeric",
-                minute: "2-digit",
-                hour12: true,
-              })
-              .toLowerCase()}
-          </p>
-          {/* {payload.payload.map((entry, index) => ( */}
-          <p
-            // key={index}
-            className="text-sm font-semibold"
-            style={{ color: "#22c55e" }}
-          >
-            {sma !== "None" && (
-              <>
-                SMA{sma} {payload[0]?.payload[`MA${sma}`]}
-              </>
-            )}
-          </p>
-          <p
-            // key={index}
-            className="text-sm font-semibold"
-            style={{ color: "#ef4444" }}
-          >
-            {lma !== "None" && (
-              <>
-                LMA{lma} {payload[0]?.payload[`MA${lma}`]}
-              </>
-            )}
-          </p>
+      const smaValue = seriesRef.current[1] ? param.seriesData.get(seriesRef.current[1])?.value : null;
+      const lmaValue = seriesRef.current[2] ? param.seriesData.get(seriesRef.current[2])?.value : null;
 
-          {/* ))} */}
-        </div>
-      );
-    }
-    return null;
-  };
+      tooltipEl.style.display = 'block';
+      tooltipEl.style.left = `${param.point.x}px`;
+      tooltipEl.style.top = `${param.point.y}px`;
+      tooltipEl.innerHTML = `
+        <p class="text-sm text-gray-600 mb-1">${time}</p>
+        <p class="text-sm font-semibold">IV: ${ivPoint.value.toFixed(2)}%</p>
+        ${sma !== 'None' && smaValue ? `<p class="text-sm font-semibold" style="color: #22c55e">SMA${sma}: ${smaValue.toFixed(2)}%</p>` : ''}
+        ${lma !== 'None' && lmaValue ? `<p class="text-sm font-semibold" style="color: #ef4444">LMA${lma}: ${lmaValue.toFixed(2)}%</p>` : ''}
+      `;
+    });
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [stock.ivData, sma, lma]);
+
+  // Component JSX remains the same...
   return (
-    <div className="w-[90%]  mx-auto p-6 bg-white rounded-xl shadow-lg">
+    <div className="w-[90%] mx-auto p-6 bg-white rounded-xl shadow-lg">
       <div key={stock.symbol} className="mb-10">
-        <div className="flex justify-between items-center mb-10 ">
+        <div className="flex justify-between items-center mb-10">
           <div>
             <h2 className="text-xl font-bold text-gray-800">
               {stock.symbol} - Average Implied Volatility
@@ -93,7 +195,7 @@ export default function SingleChart({
             </p>
           </div>
           <div className="flex items-center gap-2 pt-4">
-            <div className="flex items-center gap-4 mb-6 ">
+            <div className="flex items-center gap-4 mb-6">
               <div className="w-[250px]">
                 <label className="block text-[12px] font-medium text-gray-700 mb-1">
                   Short-term Moving Average
@@ -147,151 +249,13 @@ export default function SingleChart({
         </div>
 
         <div className={`${minimizedCards[stock.symbol] ? "hidden" : "block"}`}>
-          {/* <div className="flex gap-4 mb-6 ">
-          <div className="w-48">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Short-term Moving Average
-            </label>
-            <select
-              value={sma}
-              onChange={(e) => setSma(e.target.value)}
-              className="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              {smaOptions.map((option) => (
-                <option key={option} value={option}>
-                  {option === "None" ? "No SMA" : `${option} periods`}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="w-48">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Long-term Moving Average
-            </label>
-            <select
-              value={lma}
-              onChange={(e) => setLma(e.target.value)}
-              className="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              {lmaOptions.map((option) => (
-                <option key={option} value={option}>
-                  {option === "None" ? "No LMA" : `${option} periods`}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div> */}
-
-          <div
-            ref={chartContainerRef}
-            onScroll={(e) => {
-              let wrapper = document.querySelector(`.recharts-surface`);
-              let graphWrapper = document.querySelector(`.graph-wrapper`);
-
-              const allAxis = document.querySelectorAll(`.recharts-yAxis`);
-
-              let xAxis = document.querySelector(`.recharts-xAxis`);
-
-              const xAxisHeight = xAxis.getBoundingClientRect().height;
-
-              allAxis?.forEach((axis) => {
-                const orientation = axis
-                  .querySelector(`.recharts-cartesian-axis-tick-line`)
-                  ?.getAttribute("orientation");
-
-                //Adding a rect
-                const rect = document.createElementNS(
-                  "http://www.w3.org/2000/svg",
-                  "rect"
-                );
-                const yAxisheight = axis.getBoundingClientRect().height;
-                const yAxisWidth = axis.getBoundingClientRect().width;
-
-                rect.setAttribute("x", "0");
-                rect.setAttribute("y", "0");
-                rect.setAttribute("width", yAxisWidth);
-                rect.setAttribute("height", yAxisheight + xAxisHeight);
-                rect.setAttribute("fill", "white");
-                rect.setAttribute("class", `y-axis-rect-${orientation}`);
-
-                axis.insertBefore(rect, axis.firstChild);
-
-                const position =
-                  orientation === "left"
-                    ? e.target.scrollLeft
-                    : e.target.scrollLeft -
-                      wrapper?.clientWidth +
-                      graphWrapper?.clientWidth;
-
-                axis.style = "transform: translateX(" + position + "px);";
-              });
-            }}
-            className="h-[400px] scrollbar graph-wrapper app-container"
-            id="style-3"
-          >
-            {/* <ResponsiveContainer height="100%"> */}
-            <ComposedChart
-              height={400}
-              width={
-                stock.ivData.length * 100 < 100
-                  ? 100
-                  : stock.ivData.length * 100
-              }
-              data={stock.ivData}
-              margin={{ top: 10, right: 30, left: 20, bottom: 30 }}
-            >
-              <XAxis
-                dataKey="timestamp"
-                tickFormatter={formatXAxis}
-                stroke="#6b7280"
-                tick={{ fill: "#6b7280", fontSize: 12 }}
-                axisLine={{ stroke: "#e5e7eb" }}
-                tickLine={{ stroke: "#e5e7eb" }}
-              />
-
-              <Tooltip content={<CustomTooltip />} />
-              <Area
-                type="monotone"
-                dataKey="averageIV"
-                stroke="#2563eb"
-                fill="#2563eb20"
-                strokeWidth={2}
-                name="IV"
-                connectNulls
-              />
-
-              {sma !== "None" && (
-                <Line
-                  type="monotone"
-                  dataKey={`MA${sma}`}
-                  stroke="#22c55e"
-                  strokeWidth={2}
-                  dot={false}
-                  name={`SMA(${sma})`}
-                  connectNulls
-                />
-              )}
-              {lma !== "None" && (
-                <Line
-                  type="monotone"
-                  dataKey={`MA${lma}`}
-                  stroke="#ef4444"
-                  strokeWidth={2}
-                  dot={false}
-                  name={`LMA(${lma})`}
-                  connectNulls
-                />
-              )}
-              <YAxis
-                stroke="#6b7280"
-                tick={{ fill: "#6b7280", fontSize: 12 }}
-                axisLine={{ stroke: "#e5e7eb" }}
-                tickLine={{ stroke: "#e5e7eb" }}
-                tickFormatter={(value) => `${value}%`}
-                domain={["auto", "auto"]}
-              />
-            </ComposedChart>
-            {/* </ResponsiveContainer> */}
+          <div className="relative">
+            <div ref={chartContainerRef} className="h-[400px]" />
+            <div 
+              id="chart-tooltip" 
+              className="absolute bg-white p-3 border border-gray-200 shadow-lg rounded-lg hidden"
+              style={{ pointerEvents: 'none', zIndex: 100 }}
+            />
           </div>
         </div>
       </div>
