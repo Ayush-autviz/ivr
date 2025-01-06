@@ -21,6 +21,7 @@ const useTickerStore = create((set, get) => ({
 
   addStock: async (stock) => {
     console.log(stock,'stockkk')
+    get().removeStock(stock.symbol);
     set((state) => ({
       stocks: [
         ...state.stocks,
