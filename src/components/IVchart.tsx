@@ -14,6 +14,7 @@ import {
 import useTickerStore from "../store/tickerStore";
 import { X, Minimize2, Maximize2 } from "lucide-react";
 import SingleChart from "./SingleChart";
+import LightweightCandlestick from "./LightWeight";
 const OptionsIVChart = () => {
   const { stocks, error, setError, removeStock } = useTickerStore();
   const [minimizedCards, setMinimizedCards] = useState({});
@@ -44,6 +45,7 @@ const OptionsIVChart = () => {
         </div>
       )}
       {stocks.map((stock) => (
+        <div className="flex flex-col">
         <SingleChart
           stock={stock}
           sma={sma}
@@ -56,6 +58,8 @@ const OptionsIVChart = () => {
           minimizedCards={minimizedCards}
           setMinimizedCards={setMinimizedCards}
         />
+        
+        </div>
       ))}
     </div>
   );

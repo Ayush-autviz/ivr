@@ -1,6 +1,7 @@
 import { Maximize2, Minimize2, X } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { createChart } from 'lightweight-charts';
+import LightweightCandlestick from "./LightWeight";
 
 export default function SingleChart({
   stock,
@@ -257,6 +258,7 @@ export default function SingleChart({
               style={{ pointerEvents: 'none', zIndex: 100 }}
             />
           </div>
+          <LightweightCandlestick symbol={stock.symbol}/>
         </div>
       </div>
     </div>
