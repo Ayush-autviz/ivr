@@ -183,45 +183,45 @@ const LightweightCandlestick = ({ symbol }) => {
     chartRef.current = chart;
     candlestickSeriesRef.current = candlestickSeries;
 
-    chart.subscribeCrosshairMove(param => {
-      if (!param.time || !param.point) return;
+    // chart.subscribeCrosshairMove(param => {
+    //   if (!param.time || !param.point) return;
 
-      const candleData = param.seriesData.get(candlestickSeriesRef.current);
-      if (!candleData) return;
+    //   const candleData = param.seriesData.get(candlestickSeriesRef.current);
+    //   if (!candleData) return;
 
-      const tooltipEl = document.getElementById('chart-tooltip');
-      if (!tooltipEl) return;
+    //   const tooltipEl = document.getElementById('chart-tooltip');
+    //   if (!tooltipEl) return;
 
-      const time = new Date(param.time * 1000).toLocaleString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true,
-      }).toLowerCase();
+    //   const time = new Date(param.time * 1000).toLocaleString('en-US', {
+    //     month: 'short',
+    //     day: 'numeric',
+    //     hour: 'numeric',
+    //     minute: '2-digit',
+    //     hour12: true,
+    //   }).toLowerCase();
 
-      const ma30Value = param.seriesData.get(ma30SeriesRef.current)?.value;
-      const ma120Value = param.seriesData.get(ma120SeriesRef.current)?.value;
-      const bbUpper = param.seriesData.get(upperBandSeriesRef.current)?.value;
-      const bbMiddle = param.seriesData.get(middleBandSeriesRef.current)?.value;
-      const bbLower = param.seriesData.get(lowerBandSeriesRef.current)?.value;
+    //   const ma30Value = param.seriesData.get(ma30SeriesRef.current)?.value;
+    //   const ma120Value = param.seriesData.get(ma120SeriesRef.current)?.value;
+    //   const bbUpper = param.seriesData.get(upperBandSeriesRef.current)?.value;
+    //   const bbMiddle = param.seriesData.get(middleBandSeriesRef.current)?.value;
+    //   const bbLower = param.seriesData.get(lowerBandSeriesRef.current)?.value;
 
-      tooltipEl.style.display = 'block';
-      tooltipEl.style.left = `${param.point.x}px`;
-      tooltipEl.style.top = `${param.point.y}px`;
-      tooltipEl.innerHTML = `
-        <p class="text-sm text-gray-600 mb-1">${time}</p>
-        <p class="text-sm font-semibold">Open: ${candleData.open.toFixed(2)}</p>
-        <p class="text-sm font-semibold">High: ${candleData.high.toFixed(2)}</p>
-        <p class="text-sm font-semibold">Low: ${candleData.low.toFixed(2)}</p>
-        <p class="text-sm font-semibold">Close: ${candleData.close.toFixed(2)}</p>
-        ${ma30Value ? `<p class="text-sm font-semibold" style="color: #ff9800">MA30: ${ma30Value.toFixed(2)}</p>` : ''}
-        ${ma120Value ? `<p class="text-sm font-semibold" style="color: #9c27b0">MA120: ${ma120Value.toFixed(2)}</p>` : ''}
-        ${bbUpper ? `<p class="text-sm font-semibold" style="color: rgba(100, 149, 237, 0.8)">BB Upper: ${bbUpper.toFixed(2)}</p>` : ''}
-        ${bbMiddle ? `<p class="text-sm font-semibold" style="color: rgba(100, 149, 237, 0.8)">BB Middle: ${bbMiddle.toFixed(2)}</p>` : ''}
-        ${bbLower ? `<p class="text-sm font-semibold" style="color: rgba(100, 149, 237, 0.8)">BB Lower: ${bbLower.toFixed(2)}</p>` : ''}
-      `;
-    });
+    //   tooltipEl.style.display = 'block';
+    //   tooltipEl.style.left = `${param.point.x}px`;
+    //   tooltipEl.style.top = `${param.point.y}px`;
+    //   tooltipEl.innerHTML = `
+    //     <p class="text-sm text-gray-600 mb-1">${time}</p>
+    //     <p class="text-sm font-semibold">Open: ${candleData.open.toFixed(2)}</p>
+    //     <p class="text-sm font-semibold">High: ${candleData.high.toFixed(2)}</p>
+    //     <p class="text-sm font-semibold">Low: ${candleData.low.toFixed(2)}</p>
+    //     <p class="text-sm font-semibold">Close: ${candleData.close.toFixed(2)}</p>
+    //     ${ma30Value ? `<p class="text-sm font-semibold" style="color: #ff9800">MA30: ${ma30Value.toFixed(2)}</p>` : ''}
+    //     ${ma120Value ? `<p class="text-sm font-semibold" style="color: #9c27b0">MA120: ${ma120Value.toFixed(2)}</p>` : ''}
+    //     ${bbUpper ? `<p class="text-sm font-semibold" style="color: rgba(100, 149, 237, 0.8)">BB Upper: ${bbUpper.toFixed(2)}</p>` : ''}
+    //     ${bbMiddle ? `<p class="text-sm font-semibold" style="color: rgba(100, 149, 237, 0.8)">BB Middle: ${bbMiddle.toFixed(2)}</p>` : ''}
+    //     ${bbLower ? `<p class="text-sm font-semibold" style="color: rgba(100, 149, 237, 0.8)">BB Lower: ${bbLower.toFixed(2)}</p>` : ''}
+    //   `;
+    // });
 
     const handleResize = () => {
       chart.applyOptions({
