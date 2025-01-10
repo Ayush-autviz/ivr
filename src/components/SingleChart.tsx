@@ -2,6 +2,8 @@ import { Maximize2, Minimize2, X } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { createChart } from 'lightweight-charts';
 import LightweightCandlestick from "./LightWeight";
+import DeviationChart from "./NetPriceChart";
+import useTickerStore from "../store/tickerStore";
 
 export default function SingleChart({
   stock,
@@ -19,6 +21,7 @@ export default function SingleChart({
   const chartRef = useRef(null);
   const seriesRef = useRef([]);
   const visibleLogicalRangeRef = useRef(null);
+  const {  removeStock } = useTickerStore();
 
   useEffect(() => {
     if (!chartContainerRef.current || !stock.ivData.length) return;
@@ -105,7 +108,7 @@ export default function SingleChart({
         time: parseInt(item.timestamp),
         value: parseFloat(item[`MA${sma}`])
       })).filter(item => !isNaN(item.value));
-      
+
       const smaSeries = chart.addLineSeries({
         color: '#22c55e',
         lineWidth: 2,
@@ -125,7 +128,7 @@ export default function SingleChart({
         time: parseInt(item.timestamp),
         value: parseFloat(item[`MA${lma}`])
       })).filter(item => !isNaN(item.value));
-      
+
       const lmaSeries = chart.addLineSeries({
         color: '#ef4444',
         lineWidth: 2,
@@ -252,13 +255,26 @@ export default function SingleChart({
         <div className={`${minimizedCards[stock.symbol] ? "hidden" : "block"}`}>
           <div className="relative">
             <div ref={chartContainerRef} className="h-[400px]" />
-            <div 
-              id="chart-tooltip" 
+            <div
+              id="chart-tooltip"
               className="absolute bg-white p-3 border border-gray-200 shadow-lg rounded-lg hidden"
               style={{ pointerEvents: 'none', zIndex: 100 }}
             />
           </div>
-          <LightweightCandlestick symbol={stock.symbol}/>
+          <LightweightCandlestick symbol={stock.symbol} />
+          {/* <div>
+            <h2 className="text-xl font-bold text-gray-800 mt-6 ">DeviationChart</h2>
+            <div className="grid grid-cols-2 gap-4">
+
+              {
+                [12, 13, 15, 16].map((item, index) => {
+                  return <DeviationChart stock={stock} index={index} />
+                })
+              }
+            </div>
+          </div> */}
+
+
         </div>
       </div>
     </div>

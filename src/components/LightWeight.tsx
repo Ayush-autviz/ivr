@@ -398,7 +398,7 @@ const LightweightCandlestick = ({ symbol }) => {
     <div className="w-full bg-white p-4  rounded-lg   ">
 
       <div className="flex justify-between align-middle items-center my-5">
-        <div><h2 class="text-xl font-bold text-gray-800">{symbol} – Underlying Stock</h2><p class="text-gray-600 mt-1 text-[14px]">Timeframe: {timeframe} minute</p></div>
+        <div><h2 className="text-xl font-bold text-gray-800">{symbol} – Underlying Stock</h2><p className="text-gray-600 mt-1 text-[14px]">Timeframe: {timeframe} minute</p></div>
         <div className=" flex flex-row gap-4 border-b-1 border-[#757575] ">
           {
             time.map((item) => (

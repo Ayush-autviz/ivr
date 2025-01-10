@@ -57,6 +57,7 @@ const OptionsIVChart = () => {
           toggleMinimize={toggleMinimize}
           minimizedCards={minimizedCards}
           setMinimizedCards={setMinimizedCards}
+          
         />
         
         </div>

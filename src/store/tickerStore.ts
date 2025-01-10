@@ -51,7 +51,7 @@ const useTickerStore = create((set, get) => ({
     // Set up new interval
     const intervalId = setInterval(() => {
       get().fetchOptionsData(stock.tickers,stock.symbol);
-    }, 3000);
+    }, 5000);
 
     // Store the interval ID
     set((state) => ({
@@ -148,10 +148,60 @@ const useTickerStore = create((set, get) => ({
         const truncatedIV = Math.floor(item.implied_volatility * 100) / 100; // Keep only two decimals
         return sum + truncatedIV;
       }, 0) / validResults.length;
+
+      const vegas = validResults.map((item)=>{
+        const v = Math.floor(item?.greeks?.vega * 100) / 100;
+        return (v * 100).toFixed(2);
+      })
+
+      const asks = validResults.map((item)=>{
+    
+        return item.last_quote.ask;
+      })
+
+      const bids = validResults.map((item)=>{
+        
+        return item.last_quote.bid;
+      })
+
+      const thetas = validResults.map((item)=>{
+        const t= Math.floor(item?.greeks?.theta * 100) / 100;
+        return (t * 100).toFixed(2);
+      })
+
+      const averageVega = validResults.reduce((sum, item) => {
+        const truncatedIV = Math.floor(item?.greeks?.vega * 100) / 100; // Keep only two decimals
+        return sum + truncatedIV;
+      }, 0) / validResults.length;
+
+      const averageTheta = validResults.reduce((sum, item) => {
+        const truncatedIV = Math.floor(item?.greeks?.theta * 100) / 100; // Keep only two decimals
+        return sum + truncatedIV;
+      }, 0) / validResults.length;
+
+      const averageBid = validResults.reduce((sum, item) => {
+        const truncatedIV = item.last_quote.bid;
+        // Keep only two decimals
+        return sum + truncatedIV;
+      }, 0) / validResults.length;
+
+      const averageAsk = validResults.reduce((sum, item) => {
+        const truncatedIV = item.last_quote.ask;
+        return sum + truncatedIV;
+      }, 0) / validResults.length;
   
       const newPoint = {
         timestamp,
         averageIV: (averageIV * 100).toFixed(2),
+        vegas:vegas,
+        thetas:thetas,
+        asks,
+        bids,
+        averageVega:(averageVega * 100).toFixed(2),
+        averageTheta:(averageTheta * 100).toFixed(2),
+        averageAsk,
+        averageBid,
+        timeframeData: {},
       };
   
       // Add SMA and LMA calculations
@@ -170,6 +220,98 @@ const useTickerStore = create((set, get) => ({
         const updatedStocks = [...state.stocks];
         const targetStock = updatedStocks[stockIndex];
         const updatedIvData = [...targetStock.ivData, newPoint];
+
+        const strikes = [...new Set(validResults.map(item => item.details.strike_price))];
+
+        const timeframes = {
+          '1min': 12,    // 12 * 5sec = 1min
+          '5min': 60,    // 60 * 5sec = 5min
+          '10min': 120,  // 120 * 5sec = 10min
+          '15min': 180,  // 180 * 5sec = 15min
+          '30min': 360   // 360 * 5sec = 30min
+        };
+        
+        vegas.forEach((_, index) => {
+          Object.entries(timeframes).forEach(([timeframe, dataPoints]) => {
+            console.log(timeframe,dataPoints,'td');
+            if (updatedIvData?.length >= dataPoints) {
+              const slice = updatedIvData.slice(-dataPoints);
+              
+              const startVega = parseFloat(slice[0]?.vegas?.[index]);
+              const endVega = parseFloat(slice[slice.length - 1]?.vegas?.[index]);
+              
+              const startTheta = parseFloat(slice[0]?.thetas?.[index]);
+              const endTheta = parseFloat(slice[slice.length - 1]?.thetas?.[index]);
+        
+              const startBid = slice[0]?.bids?.[index] ;
+              const startAsk = slice[0]?.asks?.[index] ;
+              const endBid = slice[slice.length - 1]?.bids?.[index] ;
+              const endAsk = slice[slice.length - 1]?.asks?.[index] ;
+        
+              const averageVega = (startVega + endVega) / 2;
+              const averageTheta = (startTheta + endTheta) / 2;
+        
+              const timeframeMinutes = dataPoints * 5 / 60;
+              const thetaPriceChange = (averageTheta / 1440) * (timeframeMinutes * 1440);
+        
+              const startAvgPremiumPrice = startBid + startAsk > 0 
+                ? ((startBid + startAsk) / 2 + Math.abs(thetaPriceChange)) 
+                : 0;
+        
+              const currentAvgPremiumPrice = (endBid + endAsk) / 2;
+        
+              const netPriceChangePercentage = 
+                startAvgPremiumPrice !== 0 
+                  ? ((currentAvgPremiumPrice / startAvgPremiumPrice - 1) * 100) 
+                  : 0;
+        
+              // if (!newPoint.timeframeData) newPoint.timeframeData = {};
+              // if (!newPoint.timeframeData[timeframe]) newPoint.timeframeData[timeframe] = [];
+             
+
+              const previousData = updatedIvData[updatedIvData.length-2]?.timeframeData?.[timeframe]?.[index]??null;
+              const timeframeSeconds = timeframeMinutes * 60; // Convert timeframe to seconds
+
+              console.log(previousData,'previous data');
+              //console.log(timestamp - previousData.time < timeframeSeconds,'updated')
+        
+              if (previousData && (timestamp - previousData.time < timeframeSeconds)) {
+                // Update the existing point
+                // previousData.value = parseFloat(netPriceChangePercentage.toFixed(2));
+                // previousData.vega = averageVega;
+                // previousData.theta = averageTheta;
+                // previousData.bid = endBid;
+                // previousData.ask = endAsk;
+                if (!newPoint.timeframeData[timeframe]) newPoint.timeframeData[timeframe] = [];
+                newPoint.timeframeData[timeframe][index] = {
+                  time: previousData.time,
+                  value: parseFloat(netPriceChangePercentage.toFixed(2)),
+                  vega: averageVega,
+                  theta: averageTheta,
+                  bid: endBid,
+                  ask: endAsk
+                };
+              } else {
+                // Insert a new point
+                console.log('else condition')
+                if (!newPoint.timeframeData[timeframe]) newPoint.timeframeData[timeframe] = [];
+                newPoint.timeframeData[timeframe][index] = {
+                  time: timestamp,
+                  value: parseFloat(netPriceChangePercentage.toFixed(2)),
+                  vega: averageVega,
+                  theta: averageTheta,
+                  bid: endBid,
+                  ask: endAsk
+                };
+              }
+        
+            }
+          });
+        });
+        
+        
+
+
   
         // Calculate moving averages for the new point
         periods.forEach((period) => {
@@ -195,6 +337,7 @@ const useTickerStore = create((set, get) => ({
         };
       });
     } catch (err) {
+      console.log(err);
       set({ error: err.message });
     }
   },
