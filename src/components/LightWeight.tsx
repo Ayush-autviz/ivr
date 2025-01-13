@@ -93,13 +93,18 @@ const LightweightCandlestick = ({ symbol }) => {
     ma120SeriesRef.current?.update(lastMA120);
   };
 
-  const formatCandleData = (candle) => ({
-    time: candle.t ? new Date(candle.t).getTime() / 1000 : new Date(candle.timestamp).getTime() / 1000,
-    open: candle.o || candle.open,
-    high: candle.h || candle.high,
-    low: candle.l || candle.low,
-    close: candle.c || candle.close,
-  });
+  const formatCandleData = (candle) => {
+    
+    const localTimeInSeconds = Math.floor(new Date(candle.timestamp || candle.t).getTime() / 1000) - new Date().getTimezoneOffset() * 60;
+    return {
+      time: localTimeInSeconds,
+      open: candle.o || candle.open,
+      high: candle.h || candle.high,
+      low: candle.l || candle.low,
+      close: candle.c || candle.close,
+    };
+  };
+  
 
   const formatCandleData2 = (candle) => ({
     time: new Date(candle.timestamp).getTime() / 1000,
@@ -234,7 +239,7 @@ const LightweightCandlestick = ({ symbol }) => {
     const fetchHistoricalData = async () => {
       try {
         const endDate = new Date().toISOString().split('T')[0];
-        const startDate = new Date(Date.now() - 15 * 24 * 60 * 60 * 1000)
+        const startDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
           .toISOString()
           .split('T')[0];
 
@@ -289,7 +294,7 @@ const LightweightCandlestick = ({ symbol }) => {
         const message = JSON.parse(event.data);
         console.log(message, 'message')
         if (message[0].ev === 'A') {
-          const candleData = formatCandleData2({
+          const candleData = formatCandleData({
             timestamp: Math.floor(message[0].e),
             close: message[0].c,
             open: message[0].o,
@@ -395,14 +400,14 @@ const LightweightCandlestick = ({ symbol }) => {
   };
 
   return (
-    <div className="w-full bg-white p-4  rounded-lg   ">
+    <div className="w-full bg-white p-4 mt-5  rounded-lg  shadow-sm border border-grey-50   ">
 
       <div className="flex justify-between align-middle items-center my-5">
         <div><h2 className="text-xl font-bold text-gray-800">{symbol} – Underlying Stock</h2><p className="text-gray-600 mt-1 text-[14px]">Timeframe: {timeframe} minute</p></div>
         <div className=" flex flex-row gap-4 border-b-1 border-[#757575] ">
           {
             time.map((item) => (
-              <div onClick={() => handleTimeframeChange(item)} className='p-3 hover:bg-gray-100 rounded-lg transition-colors bg-[#8192aa29] cursor-pointer'>
+              <div onClick={() => handleTimeframeChange(item)} className={`p-3  rounded-lg transition-colors bg-[#8192aa29] cursor-pointer ${timeframe==item ? 'bg-blue-500 text-white':'hover:bg-gray-100'}`}>
                 {item}m
               </div>
             ))

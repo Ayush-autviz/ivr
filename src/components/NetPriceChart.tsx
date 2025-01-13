@@ -22,13 +22,41 @@ const DeviationChart = ({ stock, index }) => {
   useEffect(() => {
     if (chartContainerRef.current) {
       // Get the data first to calculate the range
-      const chartData = stock?.ivData?.map(item => {
-        const timeframeData = item.timeframeData?.[selectedTimeframe];
-        return {
-          time: parseInt(timeframeData?.[index]?.time),
-          value: timeframeData ? parseFloat(timeframeData[index].value) : null,
-        };
-      }).filter(item => item.value !== null && !isNaN(item.value));
+     
+        const chartData = stock?.ivData
+          ?.map(item => {
+            const timeframeData = item.timeframeData?.[selectedTimeframe];
+            if (timeframeData) {
+              // Calculate the average of all values in the timeframeData
+              const values = timeframeData
+                .map(dataPoint => parseFloat(dataPoint.value))
+                .filter(value => !isNaN(value));
+              const total = values.reduce((sum, value) => sum + value, 0);
+              const average = total / values.length || 0;
+    
+              return {
+                time: parseInt(timeframeData?.[0]?.time) - new Date().getTimezoneOffset() * 60, // Use the time of the first entry
+                value: average, // Store the average as the value
+              };
+            }
+            return null;
+          })
+          .filter(item => item !== null) // Filter out any null entries
+          .reduce((acc, curr) => {
+            // Check if the current time already exists in the accumulator
+            const existingIndex = acc.findIndex(point => point.time === curr.time);
+            if (existingIndex !== -1) {
+              // Replace the existing point with the current one
+              acc[existingIndex] = curr;
+            } else {
+              // Add the current point if it's not a duplicate
+              acc.push(curr);
+            }
+            return acc;
+          }, []);
+    
+        console.log(chartData); // Debugging
+    
 
       // Calculate the maximum absolute value
       // const maxAbsValue = Math.max(
@@ -61,6 +89,25 @@ const DeviationChart = ({ stock, index }) => {
           // minValue: -maxAbsValue,
           // maxValue: maxAbsValue
         },
+        timeScale: {
+          timeVisible: true, // Enables the display of time
+          secondsVisible: false, // Show seconds as well
+         
+        },
+        // localization: {
+        //   timeFormatter: (timestamp) => {
+        //     const date = new Date(timestamp * 1000); // Convert seconds to milliseconds
+        //     return date.toLocaleString([], {
+        //       timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone, // Automatically detects browser time zone
+        //       hour: "2-digit",
+        //       minute: "2-digit",
+        //       second: "2-digit", // Optional: Include seconds
+        //       day: "2-digit",
+        //       month: "2-digit",
+        //       year: "numeric",
+        //     });
+        //   },
+        // },
       });
 
       // Add the baseline series for the deviation data
@@ -118,10 +165,12 @@ const DeviationChart = ({ stock, index }) => {
   }, [stock, selectedTimeframe]);
 
   return (
-    <div className="w-full max-w-4xl mx-auto mt-3 bg-white rounded-lg shadow-sm border border-grey-50 p-4">
+    <div className="w-full  mx-auto mt-3 bg-white rounded-lg shadow-sm border border-grey-50 p-4">
       <div className="flex justify-between items-center pb-5">
-        <div><h2 className="text-xl font-bold text-gray-800">Tracking</h2>
-          <p className="text-gray-600 text-[14px]">{track[index]}</p></div>
+        <div>
+        <h2 className="text-xl font-bold text-gray-800">{stock.symbol}-Net Price Change</h2>
+        <p className="text-gray-600 mt-1 text-[14px]">Timeframe: {selectedTimeframe}</p>
+        </div>
         <div className="flex gap-2 items-center flex-wrap ">
           {timeframes.map((timeframe) => (
             <button
