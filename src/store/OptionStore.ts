@@ -1,11 +1,15 @@
-import { create } from 'zustand'
-import { fetchOptionStrikes, fetchOptionExpiryDates, searchStocks } from "../services/polygon";
+import { create } from "zustand";
+import {
+  fetchOptionStrikes,
+  fetchOptionExpiryDates,
+  searchStocks,
+} from "../services/polygon";
 
 const useAnalysisStore = create((set, get) => ({
   // States
-  ticker: '',
-  selectedDate: '',
-  date: '',
+  ticker: "",
+  selectedDate: "",
+  date: "",
   optionData: null,
   analyseLoading: false,
   analyseError: false,
@@ -35,40 +39,48 @@ const useAnalysisStore = create((set, get) => ({
 
     // Deep clone the new data to avoid mutations
     const processedData = JSON.parse(JSON.stringify(newData));
-    
+
     // Process each category of options
     const categories = [
-      'aboveCurrentPriceCall',
-      'aboveCurrentPricePut',
-      'belowCurrentPriceCall',
-      'belowCurrentPricePut'
+      "aboveCurrentPriceCall",
+      "aboveCurrentPricePut",
+      "belowCurrentPriceCall",
+      "belowCurrentPricePut",
     ];
 
-    console.log(newData,'newdata');
+    console.log(newData, "newdata");
 
-    categories.forEach(category => {
+    categories.forEach((category) => {
       if (Array.isArray(processedData[category])) {
-        processedData[category] = processedData[category].map(newOption => {
+        processedData[category] = processedData[category].map((newOption) => {
           // Skip if current option has valid IV
-          console.log('checking 2');
-          if (newOption.implied_volatility != null && newOption.implied_volatility !== undefined) {
+          console.log("checking 2");
+          if (
+            newOption.implied_volatility != null &&
+            newOption.implied_volatility !== undefined
+          ) {
             return newOption;
           }
-           console.log('checking');
+          console.log("checking");
           // Find matching option in previous data based on strike and contract type
-          const matchingPreviousOption = previousOptionData[category]?.find(prevOption => 
-            prevOption.details.strike_price === newOption.details.strike_price &&
-            prevOption.details.contract_type === newOption.details.contract_type
+          const matchingPreviousOption = previousOptionData[category]?.find(
+            (prevOption) =>
+              prevOption.details.strike_price ===
+                newOption.details.strike_price &&
+              prevOption.details.contract_type ===
+                newOption.details.contract_type
           );
 
-          console.log(matchingPreviousOption,'option')
+          console.log(matchingPreviousOption, "option");
 
           // If matching option found and it has valid IV, use it
-          if (matchingPreviousOption?.implied_volatility != null && 
-              matchingPreviousOption?.implied_volatility !== undefined) {
+          if (
+            matchingPreviousOption?.implied_volatility != null &&
+            matchingPreviousOption?.implied_volatility !== undefined
+          ) {
             return {
               ...newOption,
-              implied_volatility: matchingPreviousOption.implied_volatility
+              implied_volatility: matchingPreviousOption.implied_volatility,
             };
           }
 
@@ -78,34 +90,37 @@ const useAnalysisStore = create((set, get) => ({
     });
 
     return processedData;
-  },    
+  },
 
   // Data fetching actions
   fetchOptionData: async () => {
     const store = get();
     const { ticker, date, strikeRate, optionData: previousOptionData } = store;
-    
+
     try {
       const data = await fetchOptionStrikes(ticker, date, strikeRate);
-      const processedData = store.handleImpliedVolatility(data, previousOptionData);
+      const processedData = store.handleImpliedVolatility(
+        data,
+        previousOptionData
+      );
 
-      set({ 
+      set({
         optionData: processedData,
         analyseLoading: false,
-        analyseError: false
+        analyseError: false,
       });
     } catch (error) {
-      set({ 
+      set({
         analyseLoading: false,
-        analyseError: 'Failed to fetch option data'
+        analyseError: "Failed to fetch option data",
       });
-      console.error('Error fetching option data:', error);
+      console.error("Error fetching option data:", error);
     }
   },
 
   startAnalysis: () => {
     const store = get();
-    
+
     // Validation
     if (!store.ticker) {
       store.setAnalyseError("Please Select Stock");
@@ -142,14 +157,14 @@ const useAnalysisStore = create((set, get) => ({
     try {
       set({ expLoading: true });
       const dates = await fetchOptionExpiryDates(symbol);
-      set({ 
+      set({
         expiry: dates,
-        expLoading: false 
+        expLoading: false,
       });
       return dates;
     } catch (error) {
       set({ expLoading: false });
-      console.error('Error fetching expiry dates:', error);
+      console.error("Error fetching expiry dates:", error);
       return [];
     }
   },
@@ -159,16 +174,16 @@ const useAnalysisStore = create((set, get) => ({
     const { stopPolling } = get();
     stopPolling();
     set({
-      ticker: '',
-      selectedDate: '',
-      date: '',
+      ticker: "",
+      selectedDate: "",
+      date: "",
       optionData: null,
       analyseLoading: false,
       analyseError: false,
       pollingInterval: null,
-      strikeRate: 12
+      strikeRate: 12,
     });
-  }
+  },
 }));
 
 export default useAnalysisStore;

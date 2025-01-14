@@ -103,8 +103,6 @@ const useTickerStore = create((set, get) => ({
       return row.details.ticker;
     });
 
-    console.log(arrTickers, "arrtickers");
-
     // Clear any existing interval when setting new tickers
     const currentIntervalId = get().intervalId;
     if (currentIntervalId) {
@@ -144,38 +142,37 @@ const useTickerStore = create((set, get) => ({
       if (validResults.length === 0) {
         throw new Error("No valid implied volatility data");
       }
-
+      console.log(validResults, "valid");
       const averageIV =
         validResults.reduce((sum, item) => {
           const truncatedIV = Math.floor(item.implied_volatility * 100) / 100; // Keep only two decimals
           return sum + truncatedIV;
         }, 0) / validResults.length;
 
-        const optionDataTable = validResults.map((item) => {
-          const strikePrice = item.details.strike_price;
-          const side = item.details.contract_type; // Assuming 'option_type' can be 'call' or 'put'
-          const dfm = (
-            ((item.details.strike_price - item.underlying_asset.price) / item.details.strike_price) *
-            100
-          ).toFixed(2);
-          const IV = (item.implied_volatility * 100).toFixed(2); // Implied Volatility in percentage
-         // const NPC = calculateNPC(item); // You need a function to calculate NPC (Theoretical Price Change Percentage)
-        
-          return {
-            strikePrice,
-            side,
-            dfm,
-            iv: IV // IV as a percentage
-          };
-        });
+      const optionDataTable = validResults.map((item) => {
+        const strikePrice = item.details.strike_price;
+        const side = item.details.contract_type; // Assuming 'option_type' can be 'call' or 'put'
+        const dfm = (
+          ((item.details.strike_price - item.underlying_asset.price) /
+            item.details.strike_price) *
+          100
+        ).toFixed(2);
+        const IV = (item.implied_volatility * 100).toFixed(2); // Implied Volatility in percentage
+        // const NPC = calculateNPC(item); // You need a function to calculate NPC (Theoretical Price Change Percentage)
 
-      
+        return {
+          strikePrice,
+          side,
+          dfm,
+          iv: IV, // IV as a percentage
+        };
+      });
 
       const IVs = validResults.map((item) => {
-        const iv =(item.implied_volatility * 100).toFixed(2);
-        return iv
+        const iv = (item.implied_volatility * 100).toFixed(2);
+        return iv;
       });
-    
+
       const vegas = validResults.map((item) => {
         const v = Math.floor(item?.greeks?.vega * 100) / 100;
         return (v * 100).toFixed(2);
@@ -232,7 +229,7 @@ const useTickerStore = create((set, get) => ({
         averageAsk,
         averageBid,
         timeframeData: {},
-        optionDataTable
+        optionDataTable,
       };
 
       // Add SMA and LMA calculations
@@ -241,7 +238,6 @@ const useTickerStore = create((set, get) => ({
       const periods = [...smaOptions, ...lmaOptions];
 
       set((state) => {
-        console.log(state.stocks, "state stocks");
         const stockIndex = state.stocks.findIndex(
           (stock) => stock.symbol === symbol
         );
@@ -268,7 +264,6 @@ const useTickerStore = create((set, get) => ({
 
         vegas.forEach((_, index) => {
           Object.entries(timeframes).forEach(([timeframe, dataPoints]) => {
-            console.log(timeframe, dataPoints, "td");
             if (updatedIvData?.length >= dataPoints) {
               const slice = updatedIvData.slice(-dataPoints);
 
@@ -282,7 +277,8 @@ const useTickerStore = create((set, get) => ({
                 slice[slice.length - 1]?.thetas?.[index]
               );
 
-              const ivChange =slice[slice.length - 1]?.IVs?.[index] - slice[0]?.IVs?.[index] 
+              const ivChange =
+                slice[slice.length - 1]?.IVs?.[index] - slice[0]?.IVs?.[index];
 
               const startBid = slice[0]?.bids?.[index];
               const startAsk = slice[0]?.asks?.[index];
@@ -294,21 +290,15 @@ const useTickerStore = create((set, get) => ({
 
               const timeframeMinutes = (dataPoints * 5) / 60;
               const thetaPriceChange =
-                (averageTheta / 1440) * (timeframeMinutes * 1440);
-              const vegaPriceChange = ivChange*averageVega;
-
+                (averageTheta / 1440) * (timeframeMinutes);
+              const vegaPriceChange = ivChange * averageVega;
 
               const currentAvgPremiumPrice = (endBid + endAsk) / 2;
 
-              console.log(thetaPriceChange,'thetaprice change')
-
               const startAvgPremiumPrice =
-              startBid + startAsk > 0
-                ? currentAvgPremiumPrice + thetaPriceChange - vegaPriceChange
-                : 0;
-
-              console.log(startAvgPremiumPrice,'starting average premium price');
-              console.log(currentAvgPremiumPrice,'cureent average premium price')
+                startBid + startAsk > 0
+                  ? currentAvgPremiumPrice + thetaPriceChange - vegaPriceChange
+                  : 0;
 
               const netPriceChangePercentage =
                 startAvgPremiumPrice !== 0
@@ -324,7 +314,6 @@ const useTickerStore = create((set, get) => ({
                 ]?.[index] ?? null;
               const timeframeSeconds = timeframeMinutes * 60; // Convert timeframe to seconds
 
-              console.log(previousData, "previous data");
               //console.log(timestamp - previousData.time < timeframeSeconds,'updated')
 
               if (
@@ -349,7 +338,6 @@ const useTickerStore = create((set, get) => ({
                 };
               } else {
                 // Insert a new point
-                console.log("else condition");
                 if (!newPoint.timeframeData[timeframe])
                   newPoint.timeframeData[timeframe] = [];
                 newPoint.timeframeData[timeframe][index] = {
