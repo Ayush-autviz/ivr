@@ -171,8 +171,11 @@ const useTickerStore = create((set, get) => ({
 
       
 
-      
-
+      const IVs = validResults.map((item) => {
+        const iv =(item.implied_volatility * 100).toFixed(2);
+        return iv
+      });
+    
       const vegas = validResults.map((item) => {
         const v = Math.floor(item?.greeks?.vega * 100) / 100;
         return (v * 100).toFixed(2);
@@ -223,6 +226,7 @@ const useTickerStore = create((set, get) => ({
         thetas: thetas,
         asks,
         bids,
+        IVs,
         averageVega: (averageVega * 100).toFixed(2),
         averageTheta: (averageTheta * 100).toFixed(2),
         averageAsk,
@@ -278,6 +282,8 @@ const useTickerStore = create((set, get) => ({
                 slice[slice.length - 1]?.thetas?.[index]
               );
 
+              const ivChange =slice[slice.length - 1]?.IVs?.[index] - slice[0]?.IVs?.[index] 
+
               const startBid = slice[0]?.bids?.[index];
               const startAsk = slice[0]?.asks?.[index];
               const endBid = slice[slice.length - 1]?.bids?.[index];
@@ -289,13 +295,20 @@ const useTickerStore = create((set, get) => ({
               const timeframeMinutes = (dataPoints * 5) / 60;
               const thetaPriceChange =
                 (averageTheta / 1440) * (timeframeMinutes * 1440);
+              const vegaPriceChange = ivChange*averageVega;
 
-              const startAvgPremiumPrice =
-                startBid + startAsk > 0
-                  ? (startBid + startAsk) / 2 + Math.abs(thetaPriceChange)
-                  : 0;
 
               const currentAvgPremiumPrice = (endBid + endAsk) / 2;
+
+              console.log(thetaPriceChange,'thetaprice change')
+
+              const startAvgPremiumPrice =
+              startBid + startAsk > 0
+                ? currentAvgPremiumPrice + thetaPriceChange - vegaPriceChange
+                : 0;
+
+              console.log(startAvgPremiumPrice,'starting average premium price');
+              console.log(currentAvgPremiumPrice,'cureent average premium price')
 
               const netPriceChangePercentage =
                 startAvgPremiumPrice !== 0
