@@ -294,7 +294,7 @@ const useTickerStore = create((set, get) => ({
 
               const timeframeMinutes = (dataPoints * 5) / 60;
               const thetaPriceChange =
-                (averageTheta / 1440) * (timeframeMinutes * 1440);
+                (averageTheta / 1440) * (timeframeMinutes);
               const vegaPriceChange = ivChange*averageVega;
 
 
