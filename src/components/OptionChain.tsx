@@ -3,6 +3,7 @@ import useTickerStore from "../store/tickerStore";
 import { ArrowUpRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import useAnalysisStore from "../store/OptionStore";
+import usePersistStore from "../store/persistStore";
 
 const OptionChain = ({ data }) => {
   const {
@@ -21,7 +22,8 @@ const OptionChain = ({ data }) => {
   const [monitorLoading, setMonitorLoading] = useState(false);
   const [monitorError, setMonitorError] = useState(false);
 
-  const { setTickers, setTicker, addStock } = useTickerStore();
+  const { setTickers, setTicker } = useTickerStore();
+  const { addStocksToDB } = usePersistStore();
   const { ticker } = useAnalysisStore();
   const handleMonitor = () => {
     const length = calls.length + puts.length;
@@ -52,7 +54,7 @@ const OptionChain = ({ data }) => {
       tracking: tracking,
     });
 
-    addStock({
+    addStocksToDB({
       symbol: ticker,
       tickers: tickers,
       tracking: tracking,

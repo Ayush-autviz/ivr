@@ -16,47 +16,51 @@ const DeviationChart = ({ stock, index }) => {
   const chartContainerRef = useRef(null);
   const chartRef = useRef(null);
 
-  const track = stock.tracking.split(",")
-  console.log(track, 'track array')
+  const track = stock.tracking.split(",");
+  console.log(track, "track array");
 
   useEffect(() => {
     if (chartContainerRef.current) {
       // Get the data first to calculate the range
-     
-        const chartData = stock?.ivData
-          ?.map(item => {
-            const timeframeData = item.timeframeData?.[selectedTimeframe];
-            if (timeframeData) {
-              // Calculate the average of all values in the timeframeData
-              const values = timeframeData
-                .map(dataPoint => parseFloat(dataPoint.value))
-                .filter(value => !isNaN(value));
-              const total = values.reduce((sum, value) => sum + value, 0);
-              const average = total / values.length || 0;
-    
-              return {
-                time: parseInt(timeframeData?.[0]?.time) - new Date().getTimezoneOffset() * 60, // Use the time of the first entry
-                value: average, // Store the average as the value
-              };
-            }
-            return null;
-          })
-          .filter(item => item !== null) // Filter out any null entries
-          .reduce((acc, curr) => {
-            // Check if the current time already exists in the accumulator
-            const existingIndex = acc.findIndex(point => point.time === curr.time);
-            if (existingIndex !== -1) {
-              // Replace the existing point with the current one
-              acc[existingIndex] = curr;
-            } else {
-              // Add the current point if it's not a duplicate
-              acc.push(curr);
-            }
-            return acc;
-          }, []);
-    
-        console.log(chartData); // Debugging
-    
+
+      const chartData = stock?.ivData
+
+        ?.map((item) => {
+          const timeframeData = item.timeframeData?.[selectedTimeframe];
+          if (timeframeData) {
+            // Calculate the average of all values in the timeframeData
+            const values = timeframeData
+              .map((dataPoint) =>{ parseFloat(dataPoint.value)})
+              .filter((value) => !isNaN(value));
+            const total = values.reduce((sum, value) => sum + value, 0);
+            const average = total / values.length || 0;
+
+            return {
+              time:
+                parseInt(timeframeData?.[0]?.time) -
+                new Date().getTimezoneOffset() * 60, // Use the time of the first entry
+              value: average, // Store the average as the value
+            };
+          }
+          return null;
+        })
+        .filter((item) => !isNaN(item.time)) // Filter out any null entries
+        .reduce((acc, curr) => {
+          // Check if the current time already exists in the accumulator
+          const existingIndex = acc.findIndex(
+            (point) => point.time === curr.time
+          );
+          if (existingIndex !== -1) {
+            // Replace the existing point with the current one
+            acc[existingIndex] = curr;
+          } else {
+            // Add the current point if it's not a duplicate
+            acc.push(curr);
+          }
+          return acc;
+        }, []);
+
+      console.log(chartData, "chartdata2"); // Debugging
 
       // Calculate the maximum absolute value
       // const maxAbsValue = Math.max(
@@ -67,17 +71,16 @@ const DeviationChart = ({ stock, index }) => {
         layout: {
           background: { color: "#ffffff" },
           textColor: "#333",
-          lineWidth:2,
+          lineWidth: 2,
         },
         grid: {
           vertLines: { color: "#f0f0f0" },
           horzLines: { color: "#f0f0f0" },
-
         },
         width: chartContainerRef.current.clientWidth,
         height: 400,
-        lineWidth:1,
-        lineColor:"yellow",
+        lineWidth: 1,
+        lineColor: "yellow",
         rightPriceScale: {
           autoScale: false,
           scaleMargins: {
@@ -92,7 +95,6 @@ const DeviationChart = ({ stock, index }) => {
         timeScale: {
           timeVisible: true, // Enables the display of time
           secondsVisible: false, // Show seconds as well
-         
         },
         // localization: {
         //   timeFormatter: (timestamp) => {
@@ -124,7 +126,7 @@ const DeviationChart = ({ stock, index }) => {
 
       // Add dashed zero line
       const dashedZeroLine = chart.addLineSeries({
-        color: '#666',
+        color: "#666",
         lineStyle: 1, // 1 represents dashed line
         lineWidth: 1,
         crosshairMarkerVisible: false,
@@ -133,9 +135,9 @@ const DeviationChart = ({ stock, index }) => {
       });
 
       // Create zero line data points
-      const zeroLineData = chartData?.map(item => ({
+      const zeroLineData = chartData?.map((item) => ({
         time: item.time,
-        value: 0
+        value: 0,
       }));
 
       // Set the data
@@ -168,8 +170,12 @@ const DeviationChart = ({ stock, index }) => {
     <div className="w-full  mx-auto mt-3 bg-white rounded-lg shadow-sm border border-grey-50 p-4">
       <div className="flex justify-between items-center pb-5">
         <div>
-        <h2 className="text-xl font-bold text-gray-800">{stock.symbol}-Net Price Change</h2>
-        <p className="text-gray-600 mt-1 text-[14px]">Timeframe: {selectedTimeframe}</p>
+          <h2 className="text-xl font-bold text-gray-800">
+            {stock.symbol}-Net Price Change
+          </h2>
+          <p className="text-gray-600 mt-1 text-[14px]">
+            Timeframe: {selectedTimeframe}
+          </p>
         </div>
         <div className="flex gap-2 items-center flex-wrap ">
           {timeframes.map((timeframe) => (
@@ -178,9 +184,11 @@ const DeviationChart = ({ stock, index }) => {
               onClick={() => setSelectedTimeframe(timeframe.value)}
               className={`
              p-3 hover:bg-gray-100 rounded-lg transition-colors bg-[#8192aa29] cursor-pointer
-              ${selectedTimeframe === timeframe.value
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}
+              ${
+                selectedTimeframe === timeframe.value
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }
               transition-colors
             `}
             >

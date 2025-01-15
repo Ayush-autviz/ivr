@@ -277,28 +277,48 @@ const useTickerStore = create((set, get) => ({
                 slice[slice.length - 1]?.thetas?.[index]
               );
 
-              const ivChange =
-                slice[slice.length - 1]?.IVs?.[index] - slice[0]?.IVs?.[index];
-
               const startBid = slice[0]?.bids?.[index];
               const startAsk = slice[0]?.asks?.[index];
               const endBid = slice[slice.length - 1]?.bids?.[index];
               const endAsk = slice[slice.length - 1]?.asks?.[index];
 
-              const averageVega = (startVega + endVega) / 2;
-              const averageTheta = (startTheta + endTheta) / 2;
+              const timeframeMinutes = (dataPoints * 5) / 60; //change based on api call timeframe
 
-              const timeframeMinutes = (dataPoints * 5) / 60;
-              const thetaPriceChange =
-                (averageTheta / 1440) * (timeframeMinutes);
-              const vegaPriceChange = ivChange * averageVega;
-
+              //Current Average Premium Price
               const currentAvgPremiumPrice = (endBid + endAsk) / 2;
 
+              //Iv Change
+
+              console.log(
+                slice[slice.length - 1]?.IVs?.[index] - slice[0]?.IVs?.[index],
+                "ivChange"
+              );
+              console.log(
+                slice[slice.length - 1]?.IVs?.[index],
+                slice[0]?.IVs?.[index],
+                "iv"
+              );
+              const ivChange =
+                slice[slice.length - 1]?.IVs?.[index] - slice[0]?.IVs?.[index]; //not multiply by 100
+
+              //Average vega
+              const averageVega = (startVega + endVega) / 2;
+              //Average Theta
+              const averageTheta = (startTheta + endTheta) / 2;
+
+              //Vega price Change
+              const vegaPriceChange = ivChange * averageVega;
+
+              //Theta price change
+              const thetaPriceChange = (averageTheta / 1440) * timeframeMinutes;
+
+              //Starting Average Premium Price
               const startAvgPremiumPrice =
                 startBid + startAsk > 0
                   ? currentAvgPremiumPrice + thetaPriceChange - vegaPriceChange
                   : 0;
+
+              //  Net Price Change Percentage
 
               const netPriceChangePercentage =
                 startAvgPremiumPrice !== 0
@@ -373,7 +393,7 @@ const useTickerStore = create((set, get) => ({
           ...targetStock,
           ivData: updatedIvData,
         };
-
+        console.log(updatedStocks, "upstocks");
         return {
           stocks: updatedStocks,
           error: null,

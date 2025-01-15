@@ -15,8 +15,10 @@ import useTickerStore from "../store/tickerStore";
 import { X, Minimize2, Maximize2 } from "lucide-react";
 import SingleChart from "./SingleChart";
 import LightweightCandlestick from "./LightWeight";
+import usePersistStore from "../store/persistStore";
 const OptionsIVChart = () => {
-  const { stocks, error, setError, removeStock } = useTickerStore();
+  const { error, setError, removeStock } = useTickerStore();
+  const { stocks, fetchStocks } = usePersistStore();
   const [minimizedCards, setMinimizedCards] = useState({});
   const [sma, setSma] = useState("None");
   const [lma, setLma] = useState("None");
@@ -29,6 +31,9 @@ const OptionsIVChart = () => {
       setError("Add at least one stock to track");
     }
   }, [stocks]);
+  useEffect(() => {
+    fetchStocks();
+  }, []);
 
   const toggleMinimize = (symbol) => {
     setMinimizedCards((prev) => ({
@@ -46,20 +51,18 @@ const OptionsIVChart = () => {
       )}
       {stocks.map((stock) => (
         <div className="flex flex-col">
-        <SingleChart
-          stock={stock}
-          sma={sma}
-          setSma={setSma}
-          smaOptions={smaOptions}
-          lma={lma}
-          setLma={setLma}
-          lmaOptions={lmaOptions}
-          toggleMinimize={toggleMinimize}
-          minimizedCards={minimizedCards}
-          setMinimizedCards={setMinimizedCards}
-          
-        />
-        
+          <SingleChart
+            stock={stock}
+            sma={sma}
+            setSma={setSma}
+            smaOptions={smaOptions}
+            lma={lma}
+            setLma={setLma}
+            lmaOptions={lmaOptions}
+            toggleMinimize={toggleMinimize}
+            minimizedCards={minimizedCards}
+            setMinimizedCards={setMinimizedCards}
+          />
         </div>
       ))}
     </div>
