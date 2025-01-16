@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createChart } from "lightweight-charts";
 import useTickerStore from "../store/tickerStore";
+import { Maximize2, Minimize2 } from "lucide-react";
 
 const timeframes = [
   { label: "1m", value: "1min" },
@@ -11,6 +12,7 @@ const timeframes = [
 ];
 
 const DeviationChart = ({ stock, index }) => {
+  const [isColapsed, setIsColapsed] = useState(false);
   // const { stocks } = useTickerStore();
   const [selectedTimeframe, setSelectedTimeframe] = useState("1min");
   const chartContainerRef = useRef(null);
@@ -30,7 +32,9 @@ const DeviationChart = ({ stock, index }) => {
           if (timeframeData) {
             // Calculate the average of all values in the timeframeData
             const values = timeframeData
-              .map((dataPoint) =>{ parseFloat(dataPoint.value)})
+              .map((dataPoint) => {
+                parseFloat(dataPoint.value);
+              })
               .filter((value) => !isNaN(value));
             const total = values.reduce((sum, value) => sum + value, 0);
             const average = total / values.length || 0;
@@ -44,7 +48,7 @@ const DeviationChart = ({ stock, index }) => {
           }
           return null;
         })
-        .filter((item) => !isNaN(item.time)) // Filter out any null entries
+        .filter((item) => !isNaN(item?.time)) // Filter out any null entries
         .reduce((acc, curr) => {
           // Check if the current time already exists in the accumulator
           const existingIndex = acc.findIndex(
@@ -196,8 +200,23 @@ const DeviationChart = ({ stock, index }) => {
             </button>
           ))}
         </div>
+        <button
+          onClick={() => setIsColapsed((s) => !s)}
+          className="p-3.5 hover:bg-gray-100 rounded-lg transition-colors bg-[#8192aa29]"
+        >
+          {isColapsed ? (
+            <Maximize2 className="w-4 h-4 text-gray-600" />
+          ) : (
+            <Minimize2 className="w-4 h-4 text-gray-600" />
+          )}
+
+          {/* */}
+        </button>
       </div>
-      <div ref={chartContainerRef} className="w-full" />
+      <div
+        ref={chartContainerRef}
+        className={`w-full ${isColapsed ? "hidden" : "block"}`}
+      />
     </div>
   );
 };

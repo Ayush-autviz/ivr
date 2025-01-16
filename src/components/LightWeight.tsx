@@ -1,16 +1,19 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { createChart, CrosshairMode } from 'lightweight-charts';
-import { POLYGON_API_KEY } from '../config/polygon';
-import RSIChart from './RsiChart';
+import React, { useEffect, useRef, useState } from "react";
+import { createChart, CrosshairMode } from "lightweight-charts";
+import { POLYGON_API_KEY } from "../config/polygon";
+import RSIChart from "./RsiChart";
+import { Maximize2, Minimize2 } from "lucide-react";
+import { is } from "date-fns/locale";
 
 const LightweightCandlestick = ({ symbol }) => {
+  const [isColapsed, setIsColapsed] = useState(false);
   const chartContainerRef = useRef(null);
   const chartRef = useRef(null);
   const candlestickSeriesRef = useRef(null);
   const wsRef = useRef(null);
   const [historicalData, setHistoricalData] = useState([]);
-  const [timeframe, setTimeframe] = useState('1');
-  const time = ["1", "5", "10", "15", "30"]
+  const [timeframe, setTimeframe] = useState("1");
+  const time = ["1", "5", "10", "15", "30"];
   // References for indicator series
   const upperBandSeriesRef = useRef(null);
   const middleBandSeriesRef = useRef(null);
@@ -20,7 +23,7 @@ const LightweightCandlestick = ({ symbol }) => {
 
   // Calculate Bollinger Bands
   const calculateBollingerBands = (data, period = 20, multiplier = 2) => {
-    const prices = data.map(d => d.close);
+    const prices = data.map((d) => d.close);
     const bbandsData = [];
 
     for (let i = 0; i < data.length; i++) {
@@ -33,15 +36,15 @@ const LightweightCandlestick = ({ symbol }) => {
       const sum = slice.reduce((a, b) => a + b, 0);
       const sma = sum / period;
 
-      const squaredDiffs = slice.map(price => Math.pow(price - sma, 2));
+      const squaredDiffs = slice.map((price) => Math.pow(price - sma, 2));
       const variance = squaredDiffs.reduce((a, b) => a + b, 0) / period;
       const stdDev = Math.sqrt(variance);
 
       bbandsData.push({
         time: data[i].time,
-        upper: sma + (multiplier * stdDev),
+        upper: sma + multiplier * stdDev,
         middle: sma,
-        lower: sma - (multiplier * stdDev),
+        lower: sma - multiplier * stdDev,
       });
     }
     return bbandsData;
@@ -50,7 +53,7 @@ const LightweightCandlestick = ({ symbol }) => {
   // Calculate Moving Average
   const calculateMA = (data, period) => {
     const maData = [];
-    const prices = data.map(d => d.close);
+    const prices = data.map((d) => d.close);
 
     for (let i = 0; i < data.length; i++) {
       if (i < period - 1) {
@@ -78,9 +81,18 @@ const LightweightCandlestick = ({ symbol }) => {
     const bbandsData = calculateBollingerBands(data);
     const lastBBand = bbandsData[bbandsData.length - 1];
 
-    upperBandSeriesRef.current?.update({ time: lastBBand.time, value: lastBBand.upper });
-    middleBandSeriesRef.current?.update({ time: lastBBand.time, value: lastBBand.middle });
-    lowerBandSeriesRef.current?.update({ time: lastBBand.time, value: lastBBand.lower });
+    upperBandSeriesRef.current?.update({
+      time: lastBBand.time,
+      value: lastBBand.upper,
+    });
+    middleBandSeriesRef.current?.update({
+      time: lastBBand.time,
+      value: lastBBand.middle,
+    });
+    lowerBandSeriesRef.current?.update({
+      time: lastBBand.time,
+      value: lastBBand.lower,
+    });
 
     // Calculate and update Moving Averages
     const ma30Data = calculateMA(data, 30);
@@ -94,8 +106,9 @@ const LightweightCandlestick = ({ symbol }) => {
   };
 
   const formatCandleData = (candle) => {
-    
-    const localTimeInSeconds = Math.floor(new Date(candle.timestamp || candle.t).getTime() / 1000) - new Date().getTimezoneOffset() * 60;
+    const localTimeInSeconds =
+      Math.floor(new Date(candle.timestamp || candle.t).getTime() / 1000) -
+      new Date().getTimezoneOffset() * 60;
     return {
       time: localTimeInSeconds,
       open: candle.o || candle.open,
@@ -104,7 +117,6 @@ const LightweightCandlestick = ({ symbol }) => {
       close: candle.c || candle.close,
     };
   };
-  
 
   const formatCandleData2 = (candle) => ({
     time: new Date(candle.timestamp).getTime() / 1000,
@@ -119,18 +131,18 @@ const LightweightCandlestick = ({ symbol }) => {
       width: chartContainerRef.current.clientWidth,
       height: 500,
       layout: {
-        background: { color: '#ffffff' },
-        textColor: '#333',
+        background: { color: "#ffffff" },
+        textColor: "#333",
       },
       grid: {
-        vertLines: { color: '#f0f0f0' },
-        horzLines: { color: '#f0f0f0' },
+        vertLines: { color: "#f0f0f0" },
+        horzLines: { color: "#f0f0f0" },
       },
       crosshair: {
         mode: CrosshairMode.Normal,
       },
       rightPriceScale: {
-        borderColor: '#d1d5db',
+        borderColor: "#d1d5db",
         autoScale: true,
         scaleMargins: {
           top: 0.1,
@@ -138,7 +150,7 @@ const LightweightCandlestick = ({ symbol }) => {
         },
       },
       timeScale: {
-        borderColor: '#d1d5db',
+        borderColor: "#d1d5db",
         timeVisible: true,
         fixLeftEdge: true,
         fixRightEdge: true,
@@ -147,40 +159,40 @@ const LightweightCandlestick = ({ symbol }) => {
 
     // Create all series
     const candlestickSeries = chart.addCandlestickSeries({
-      upColor: '#22c55e',
-      downColor: '#ef4444',
+      upColor: "#22c55e",
+      downColor: "#ef4444",
       borderVisible: false,
-      wickUpColor: '#22c55e',
-      wickDownColor: '#ef4444',
+      wickUpColor: "#22c55e",
+      wickDownColor: "#ef4444",
     });
 
     // Create and store references to indicator series
     upperBandSeriesRef.current = chart.addLineSeries({
-      color: 'rgba(100, 149, 237, 0.5)',
+      color: "rgba(100, 149, 237, 0.5)",
       lineWidth: 1,
       priceLineVisible: false,
     });
 
     middleBandSeriesRef.current = chart.addLineSeries({
-      color: 'rgba(100, 149, 237, 0.8)',
+      color: "rgba(100, 149, 237, 0.8)",
       lineWidth: 1,
       priceLineVisible: false,
     });
 
     lowerBandSeriesRef.current = chart.addLineSeries({
-      color: 'rgba(100, 149, 237, 0.5)',
+      color: "rgba(100, 149, 237, 0.5)",
       lineWidth: 1,
       priceLineVisible: false,
     });
 
     ma30SeriesRef.current = chart.addLineSeries({
-      color: '#ff9800',
+      color: "#ff9800",
       lineWidth: 1,
       priceLineVisible: false,
     });
 
     ma120SeriesRef.current = chart.addLineSeries({
-      color: '#9c27b0',
+      color: "#9c27b0",
       lineWidth: 1,
       priceLineVisible: false,
     });
@@ -234,16 +246,16 @@ const LightweightCandlestick = ({ symbol }) => {
       });
     };
 
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
 
     const fetchHistoricalData = async () => {
       try {
-        const endDate = new Date().toISOString().split('T')[0];
+        const endDate = new Date().toISOString().split("T")[0];
         const startDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
           .toISOString()
-          .split('T')[0];
+          .split("T")[0];
 
-        console.log(startDate, endDate)
+        console.log(startDate, endDate);
 
         const response = await fetch(
           `https://api.polygon.io/v2/aggs/ticker/${symbol}/range/${timeframe}/minute/${startDate}/${endDate}?limit=50000&apiKey=${POLYGON_API_KEY}`
@@ -253,14 +265,20 @@ const LightweightCandlestick = ({ symbol }) => {
         if (data.results) {
           const formattedData = data.results.map(formatCandleData);
           setHistoricalData(formattedData);
-          console.log(formattedData, 'formatted')
+          console.log(formattedData, "formatted");
           candlestickSeries.setData(formattedData);
 
           // Calculate and set initial indicators
           const bbandsData = calculateBollingerBands(formattedData);
-          upperBandSeriesRef.current.setData(bbandsData.map(d => ({ time: d.time, value: d.upper })));
-          middleBandSeriesRef.current.setData(bbandsData.map(d => ({ time: d.time, value: d.middle })));
-          lowerBandSeriesRef.current.setData(bbandsData.map(d => ({ time: d.time, value: d.lower })));
+          upperBandSeriesRef.current.setData(
+            bbandsData.map((d) => ({ time: d.time, value: d.upper }))
+          );
+          middleBandSeriesRef.current.setData(
+            bbandsData.map((d) => ({ time: d.time, value: d.middle }))
+          );
+          lowerBandSeriesRef.current.setData(
+            bbandsData.map((d) => ({ time: d.time, value: d.lower }))
+          );
 
           const ma30Data = calculateMA(formattedData, 30);
           const ma120Data = calculateMA(formattedData, 120);
@@ -268,32 +286,36 @@ const LightweightCandlestick = ({ symbol }) => {
           ma120SeriesRef.current.setData(ma120Data);
         }
       } catch (error) {
-        console.error('Error fetching historical data:', error);
+        console.error("Error fetching historical data:", error);
       }
     };
 
     fetchHistoricalData();
 
     const connectWebSocket = () => {
-      const ws = new WebSocket('wss://socket.polygon.io/stocks');
+      const ws = new WebSocket("wss://socket.polygon.io/stocks");
       wsRef.current = ws;
 
       ws.onopen = () => {
-        console.log('Connected to Polygon WebSocket');
-        ws.send(JSON.stringify({
-          action: 'auth',
-          params: POLYGON_API_KEY
-        }));
-        ws.send(JSON.stringify({
-          action: 'subscribe',
-          params: `A.${symbol}`
-        }));
+        console.log("Connected to Polygon WebSocket");
+        ws.send(
+          JSON.stringify({
+            action: "auth",
+            params: POLYGON_API_KEY,
+          })
+        );
+        ws.send(
+          JSON.stringify({
+            action: "subscribe",
+            params: `A.${symbol}`,
+          })
+        );
       };
 
       ws.onmessage = (event) => {
         const message = JSON.parse(event.data);
-        console.log(message, 'message')
-        if (message[0].ev === 'A') {
+        console.log(message, "message");
+        if (message[0].ev === "A") {
           const candleData = formatCandleData({
             timestamp: Math.floor(message[0].e),
             close: message[0].c,
@@ -302,15 +324,12 @@ const LightweightCandlestick = ({ symbol }) => {
             low: message[0].l,
           });
 
-
-
           // Update candlestick data
-
 
           // Update historical data array and recalculate indicators
           setHistoricalData((prevData) => {
             const newData = [...prevData];
-            console.log(candleData, 'real')
+            console.log(candleData, "real");
             // console.log({...candleData,
             //   time:newData[newData.length - 1].time,
             //   high:newData[newData.length - 1].high,
@@ -325,35 +344,49 @@ const LightweightCandlestick = ({ symbol }) => {
             //   open:newData[newData.length - 1].open,
             // });
 
-            const timeDiff = newData.length > 0 && (candleData.time - newData[newData.length - 1].time) > timeframe * 60;
+            const timeDiff =
+              newData.length > 0 &&
+              candleData.time - newData[newData.length - 1].time >
+                timeframe * 60;
 
-            console.log(timeDiff, 'timediff')
+            console.log(timeDiff, "timediff");
 
             if (timeDiff || newData.length === 0) {
               candlestickSeriesRef.current?.update(candleData);
-              newData.push(candleData)
+              newData.push(candleData);
               //  if(newData.length > 0){
               //   newData[newData.length - 1]=candleData;
               //  }else{
               //   newData.push(candleData)
               //  }
-
             } else {
               candlestickSeriesRef.current?.update({
                 ...candleData,
                 time: newData[newData.length - 1].time,
-                high: candleData.close > newData[newData.length - 1].high ? candleData.close : newData[newData.length - 1].high,
-                low: candleData.close < newData[newData.length - 1].low ? candleData.close : newData[newData.length - 1].low,
+                high:
+                  candleData.close > newData[newData.length - 1].high
+                    ? candleData.close
+                    : newData[newData.length - 1].high,
+                low:
+                  candleData.close < newData[newData.length - 1].low
+                    ? candleData.close
+                    : newData[newData.length - 1].low,
                 open: newData[newData.length - 1].open,
-              })
+              });
 
               newData[newData.length - 1] = {
                 ...candleData,
                 time: newData[newData.length - 1].time,
-                high: candleData.close > newData[newData.length - 1].high ? candleData.close : newData[newData.length - 1].high,
-                low: candleData.close < newData[newData.length - 1].low ? candleData.close : newData[newData.length - 1].low,
+                high:
+                  candleData.close > newData[newData.length - 1].high
+                    ? candleData.close
+                    : newData[newData.length - 1].high,
+                low:
+                  candleData.close < newData[newData.length - 1].low
+                    ? candleData.close
+                    : newData[newData.length - 1].low,
                 open: newData[newData.length - 1].open,
-              }
+              };
 
               //   newData.push({...candleData,
               //   time:newData[newData.length - 1].time,
@@ -375,11 +408,11 @@ const LightweightCandlestick = ({ symbol }) => {
       };
 
       ws.onerror = (error) => {
-        console.log('WebSocket error:', error);
+        console.log("WebSocket error:", error);
       };
 
       ws.onclose = () => {
-        console.log('WebSocket connection closed. Attempting to reconnect...');
+        console.log("WebSocket connection closed. Attempting to reconnect...");
         // setTimeout(connectWebSocket, 5000);
       };
     };
@@ -387,7 +420,7 @@ const LightweightCandlestick = ({ symbol }) => {
     connectWebSocket();
 
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
       if (wsRef.current) {
         wsRef.current.close();
       }
@@ -398,44 +431,75 @@ const LightweightCandlestick = ({ symbol }) => {
   const handleTimeframeChange = (newTimeframe) => {
     setTimeframe(newTimeframe);
   };
-
+  console.log(isColapsed, "iscollaped");
   return (
     <div className="w-full bg-white p-4 mt-5  rounded-lg  shadow-sm border border-grey-50   ">
-
-      <div className="flex justify-between align-middle items-center my-5">
-        <div><h2 className="text-xl font-bold text-gray-800">{symbol} – Underlying Stock</h2><p className="text-gray-600 mt-1 text-[14px]">Timeframe: {timeframe} minute</p></div>
+      <div
+        className={`flex justify-between align-middle items-center my-5 
+      `}
+      >
+        <div>
+          <h2 className="text-xl font-bold text-gray-800">
+            {symbol} – Underlying Stock
+          </h2>
+          <p className="text-gray-600 mt-1 text-[14px]">
+            Timeframe: {timeframe} minute
+          </p>
+        </div>
         <div className=" flex flex-row gap-4 border-b-1 border-[#757575] ">
-          {
-            time.map((item) => (
-              <div onClick={() => handleTimeframeChange(item)} className={`p-3  rounded-lg transition-colors bg-[#8192aa29] cursor-pointer ${timeframe==item ? 'bg-blue-500 text-white':'hover:bg-gray-100'}`}>
-                {item}m
-              </div>
-            ))
-          }
+          {time.map((item) => (
+            <div
+              onClick={() => handleTimeframeChange(item)}
+              className={`p-3  rounded-lg transition-colors bg-[#8192aa29] cursor-pointer ${
+                timeframe == item
+                  ? "bg-blue-500 text-white"
+                  : "hover:bg-gray-100"
+              }`}
+            >
+              {item}m
+            </div>
+          ))}
+        </div>
+
+        <div>
+          <div className="w-full justify-end flex mb-3 ml-auto">
+            <button
+              onClick={() => setIsColapsed((s) => !s)}
+              className="p-3.5 hover:bg-gray-100 rounded-lg transition-colors bg-[#8192aa29]"
+            >
+              {isColapsed ? (
+                <Maximize2 className="w-4 h-4 text-gray-600" />
+              ) : (
+                <Minimize2 className="w-4 h-4 text-gray-600" />
+              )}
+
+              {/* */}
+            </button>
+          </div>
         </div>
       </div>
-
-      <div
-        ref={chartContainerRef}
-        className="w-full relative"
-        style={{ height: '500px' }}
-      >
-        {/* <div 
+      <div className={`${isColapsed ? "hidden" : "block"}`}>
+        <div
+          ref={chartContainerRef}
+          className={"w-full relative "}
+          style={{ height: "500px" }}
+        >
+          {/* <div 
           id="chart-tooltip" 
           className="absolute bg-white p-3 w-32 border border-gray-200 shadow-lg rounded-lg hidden"
           style={{ pointerEvents: 'none', zIndex: 100 }}
         /> */}
+        </div>
+        <RSIChart
+          data={historicalData}
+          containerRef={chartContainerRef}
+          period={14}
+          overbought={70}
+          oversold={30}
+        />
       </div>
-      <RSIChart
-        data={historicalData}
-        containerRef={chartContainerRef}
-        period={14}
-        overbought={70}
-        oversold={30}
-      />
     </div>
   );
 };
 
 export default LightweightCandlestick;
-

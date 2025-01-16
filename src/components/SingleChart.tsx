@@ -5,8 +5,9 @@ import LightweightCandlestick from "./LightWeight";
 import DeviationChart from "./NetPriceChart";
 import useTickerStore from "../store/tickerStore";
 import OptionChainTable from "./OptionData";
+import usePersistStore from "../store/persistStore";
 
-export default function SingleChart({
+export default function mSingleChart({
   stock,
   sma,
   setSma,
@@ -22,7 +23,7 @@ export default function SingleChart({
   const chartRef = useRef(null);
   const seriesRef = useRef([]);
   const visibleLogicalRangeRef = useRef(null);
-  const { removeStock } = useTickerStore();
+  const { removeStock } = usePersistStore();
 
   useEffect(() => {
     if (!chartContainerRef.current || !stock.ivData.length) return;
@@ -197,14 +198,14 @@ export default function SingleChart({
         <p class="text-sm font-semibold">IV: ${ivPoint.value.toFixed(2)}%</p>
         ${
           sma !== "None" && smaValue
-            ? `<p class="text-sm font-semibold" style="color: #22c55e">SMA${sma}: ${smaValue.toFixed(
+            ? `<p class="text-sm font-semibold" style="color: #22c55e">SMA: ${smaValue.toFixed(
                 2
               )}%</p>`
             : ""
         }
         ${
           lma !== "None" && lmaValue
-            ? `<p class="text-sm font-semibold" style="color: #ef4444">LMA${lma}: ${lmaValue.toFixed(
+            ? `<p class="text-sm font-semibold" style="color: #ef4444">LMA: ${lmaValue.toFixed(
                 2
               )}%</p>`
             : ""
@@ -331,11 +332,25 @@ export default function SingleChart({
                       onChange={(e) => setSma(e.target.value)}
                       className="block w-full text-[16px] px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     >
-                      {smaOptions.map((option) => (
-                        <option key={option} value={option}>
-                          {option === "None" ? "No SMA" : `${option} periods`}
-                        </option>
-                      ))}
+                      {smaOptions.map((option) => {
+                        if (option <= 6) {
+                          return (
+                            <option key={option} value={option}>
+                              {option === "None"
+                                ? "No SMA"
+                                : `${option * 5} seconds`}
+                            </option>
+                          );
+                        } else {
+                          return (
+                            <option key={option} value={option}>
+                              {option === "None"
+                                ? "No SMA"
+                                : `${(option * 5) / 60} minutes`}
+                            </option>
+                          );
+                        }
+                      })}
                     </select>
                   </div>
                   <div className="w-[250px]">
@@ -347,11 +362,25 @@ export default function SingleChart({
                       onChange={(e) => setLma(e.target.value)}
                       className="block w-full text-[16px] px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     >
-                      {lmaOptions.map((option) => (
-                        <option key={option} value={option}>
-                          {option === "None" ? "No LMA" : `${option} periods`}
-                        </option>
-                      ))}
+                      {lmaOptions.map((option) => {
+                        if (option <= 540) {
+                          return (
+                            <option key={option} value={option}>
+                              {option === "None"
+                                ? "No LMA"
+                                : `${(option * 5) / 60} minutes`}
+                            </option>
+                          );
+                        } else {
+                          return (
+                            <option key={option} value={option}>
+                              {option === "None"
+                                ? "No LMA"
+                                : `${(option * 5) / 3600} hours`}
+                            </option>
+                          );
+                        }
+                      })}
                     </select>
                   </div>
                 </div>
@@ -385,7 +414,7 @@ export default function SingleChart({
             </div>
           </div>
           <DeviationChart stock={stock} />
-          {/* <OptionChainTable stock={stock} /> */}
+          <OptionChainTable stock={stock} />
 
           <LightweightCandlestick symbol={stock.symbol} />
         </div>

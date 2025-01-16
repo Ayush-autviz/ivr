@@ -1,4 +1,5 @@
-import React from "react";
+import { Maximize2, Minimize2 } from "lucide-react";
+import React, { useState } from "react";
 
 interface OptionData {
   strikePrice: number;
@@ -17,6 +18,8 @@ const sampleData: OptionData[] = [
 ];
 
 const OptionChainTable: React.FC = ({ stock }) => {
+  const [isColapsed, setIsColapsed] = useState(false);
+
   const arr =
     stock?.ivData?.[stock.ivData.length - 1]?.timeframeData?.["1min"] || [];
   const data = stock?.ivData?.[stock.ivData.length - 1]?.optionDataTable?.map(
@@ -29,8 +32,28 @@ const OptionChainTable: React.FC = ({ stock }) => {
 
   console.log(data);
   return (
-    <div className="container mx-auto mt-5">
-      <div className="bg-white shadow-md rounded-lg overflow-hidden">
+    <div className="container p-4 mt-5  rounded-lg  shadow-sm border border-grey-50">
+      <div className="flex justify-between mb-3">
+        <p className="text-xl font-bold text-gray-800">Net price table</p>
+        <button
+          onClick={() => setIsColapsed((s) => !s)}
+          className="p-3.5 hover:bg-gray-100 rounded-lg transition-colors bg-[#8192aa29]"
+        >
+          {isColapsed ? (
+            <Maximize2 className="w-4 h-4 text-gray-600" />
+          ) : (
+            <Minimize2 className="w-4 h-4 text-gray-600" />
+          )}
+
+          {/* */}
+        </button>
+      </div>
+
+      <div
+        className={`bg-white shadow-md rounded-lg overflow-hidden ${
+          isColapsed ? "hidden" : "block"
+        } `}
+      >
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gradient-to-r from-blue-500 to-purple-600">
             <tr>
