@@ -23,13 +23,18 @@ socket.on("stockUpdate", ({ symbol, data }) => {
 
   usePersistStore.setState((state) => {
     // Find the stock by symbol and update it
-    const updatedStocks = state.stocks.map((stock) => {
+    const updatedStocks = state?.stocks?.map((stock) => {
       if (stock.symbol === symbol) {
         // Append the new data point to the stock's `ivData` array
-        return {
-          ...stock,
-          ivData: [...(stock.ivData || []), data.lastDataPoint],
-        };
+        if ( 
+          stock.ivData[stock.ivData.length - 1].timestamp <
+          data.lastDataPoint.timestamp 
+        ) {
+          return {
+            ...stock,
+            ivData: [...(stock.ivData || []), data.lastDataPoint],
+          };
+        }
       }
       return stock; // Return the stock unchanged if it's not the one being updated
     });
