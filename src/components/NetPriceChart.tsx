@@ -33,11 +33,18 @@ const DeviationChart = ({ stock, index }) => {
             // Calculate the average of all values in the timeframeData
             const values = timeframeData
               .map((dataPoint) => {
-                parseFloat(dataPoint.value);
+                console.log(parseFloat(dataPoint.value), "12");
+                return parseFloat(dataPoint.value);
               })
               .filter((value) => !isNaN(value));
+
+            console.log(values, "values");
             const total = values.reduce((sum, value) => sum + value, 0);
-            const average = total / values.length || 0;
+            console.log(total, "total");
+            console.log(total / values.length, "division");
+
+            const average = total / values.length;
+            console.log(average, "dataval");
 
             return {
               time:

@@ -27,6 +27,7 @@ const usePersistStore = create((set, get) => ({
 
       get().setLoading(false);
     } catch (error) {
+      get().setLoading(false);
       set({
         error: error,
       });

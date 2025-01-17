@@ -16,6 +16,7 @@ import { X, Minimize2, Maximize2 } from "lucide-react";
 import SingleChart from "./SingleChart";
 import LightweightCandlestick from "./LightWeight";
 import usePersistStore from "../store/persistStore";
+import Loading from "./Loading";
 const OptionsIVChart = () => {
   // const { error, setError,  } = useTickerStore();
   const { stocks, fetchStocks, error, setError, loading } = usePersistStore();
@@ -45,18 +46,15 @@ const OptionsIVChart = () => {
   //   );
   // }
 
-  if (stocks.length < 1)
-    return (
-      <div className="p-4 text-red-500 bg-red-50 rounded-lg border border-red-100">
-        Please add stocks to continue
-      </div>
-    );
+  if (loading) return <Loading loading={loading} />;
 
   return (
     <div className="flex flex-col w-full mx-10 gap-10">
-      {loading ? (
+      {stocks.length < 1 ? (
         <>
-          <h1>Loading</h1>
+          <div className="p-4 text-red-500 bg-red-50 rounded-lg border border-red-100">
+            Please add stocks to continue
+          </div>
         </>
       ) : (
         <>
