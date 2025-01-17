@@ -15,13 +15,28 @@ const usePersistStore = create((set, get) => ({
     set({ loading });
   },
 
+  sortStockData: (stock) => {
+    return {
+      ...stock,
+      ivData: [...stock.ivData].sort((a, b) => a.timestamp - b.timestamp),
+    };
+  },
+
+  // Main sorting function for all stocks
+  sortAllStocksData: (stocks) => {
+    return stocks.map((stock) => get().sortStockData(stock));
+  },
+
   fetchStocks: async () => {
     get().setLoading(true);
     try {
       const res = await axios.get(`${BASE_URL}/api/stocks`);
 
+      const sorted = get().sortAllStocksData(res.data);
+
+      console.log(sorted, "sorted");
       set({
-        stocks: res.data,
+        stocks: sorted,
         error: null,
       });
 
