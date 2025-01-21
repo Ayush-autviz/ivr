@@ -1,12 +1,18 @@
 import { Maximize2, Minimize2, X } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createChart } from "lightweight-charts";
 import LightweightCandlestick from "./LightWeight";
 import DeviationChart from "./NetPriceChart";
 import useTickerStore from "../store/tickerStore";
 import OptionChainTable from "./OptionData";
 import usePersistStore from "../store/persistStore";
-
+const timeframes = [
+  { label: "1m", value: "1min" },
+  { label: "5m", value: "5min" },
+  { label: "10m", value: "10min" },
+  { label: "15m", value: "15min" },
+  { label: "30m", value: "30min" },
+];
 export default function mSingleChart({
   stock,
   sma,
@@ -22,9 +28,11 @@ export default function mSingleChart({
   const chartContainerRef = useRef(null);
   const chartRef = useRef(null);
   const seriesRef = useRef([]);
+  const isUpdatingRef = useRef(false);
   const visibleLogicalRangeRef = useRef(null);
-  const { removeStock } = usePersistStore();
-
+  const { removeStock, zoom, setZoom, globalTimeFrame, setGlobalTimeFrame } =
+    usePersistStore();
+  // const [selectedTimeframe, setSelectedTimeframe] = useState("1min");
   useEffect(() => {
     if (!chartContainerRef.current || !stock.ivData.length) return;
 
@@ -87,9 +95,11 @@ export default function mSingleChart({
     const ivData = stock.ivData
       .map((item) => ({
         time: parseInt(item.timestamp) - new Date().getTimezoneOffset() * 60, // Adjust to UTC
-        value: parseFloat(item.averageIV),
+        value: parseFloat(item?.timeframeDataIV[globalTimeFrame]?.averageIV),
       }))
       .filter((item) => !isNaN(item.value));
+
+    console.log(ivData,'ivDAtaaaaaaaaaa')
 
     // Add main IV area series
     const areaSeries = chart.addAreaSeries({
@@ -158,6 +168,41 @@ export default function mSingleChart({
       chart.timeScale().scrollToPosition(0, true);
     }
 
+    // new change
+    // chart.timeScale().subscribeVisibleTimeRangeChange((newTimeRange) => {
+    //   if (
+    //     newTimeRange &&
+    //     !isUpdatingRef.current &&
+    //     JSON.stringify(newTimeRange) !== JSON.stringify(zoom)
+    //   ) {
+    //     try {
+    //       isUpdatingRef.current = true;
+    //       // Ensure we're storing timestamps in seconds
+    //       const formattedRange = {
+    //         from:
+    //           typeof newTimeRange.from === "number"
+    //             ? newTimeRange.from
+    //             : Math.floor(new Date(newTimeRange.from).getTime() / 1000),
+    //         to:
+    //           typeof newTimeRange.to === "number"
+    //             ? newTimeRange.to
+    //             : Math.floor(new Date(newTimeRange.to).getTime() / 1000),
+    //       };
+
+    //       setZoom(formattedRange);
+
+    //       setTimeout(() => {
+    //         isUpdatingRef.current = false;
+    //       }, 0);
+    //     } catch (error) {
+    //       console.error("Error in zoom subscription:", error);
+    //       isUpdatingRef.current = false;
+    //     }
+    //   }
+    // });
+
+    // new change
+
     // Format tooltip
     chart.subscribeCrosshairMove((param) => {
       if (!param.time || !param.point) return;
@@ -169,7 +214,7 @@ export default function mSingleChart({
       if (!tooltipEl) return;
 
       // Get the user's local time zone
-      const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const userTimeZone = Intl.DateTimeFormat()?.resolvedOptions().timeZone;
 
       // Convert the time to the user's local time zone
       const time = new Date(
@@ -217,8 +262,30 @@ export default function mSingleChart({
       window.removeEventListener("resize", handleResize);
     };
   }, [stock.ivData, sma, lma]);
+  // useEffect(() => {
+  //   if (chartRef.current && zoom) {
+  //     try {
+  //       // Convert timestamps to proper format if needed
+  //       const formattedZoom = {
+  //         from:
+  //           typeof zoom.from === "number"
+  //             ? zoom.from
+  //             : Math.floor(new Date(zoom.from).getTime() / 1000),
+  //         to:
+  //           typeof zoom.to === "number"
+  //             ? zoom.to
+  //             : Math.floor(new Date(zoom.to).getTime() / 1000),
+  //       };
 
-  // Component JSX remains the same...
+  //       // Log the values to debug
+  //       console.log("Setting zoom range:", formattedZoom);
+
+  //       chartRef.current.timeScale().setVisibleRange(formattedZoom);
+  //     } catch (error) {
+  //       console.error("Error setting zoom range:", error, zoom);
+  //     }
+  //   }
+  // }, [zoom]);
   return (
     <div className="w-[90%] mx-auto p-6 bg-white mb-4 rounded-xl shadow-lg">
       <div key={stock.symbol} className="">
@@ -284,6 +351,7 @@ export default function mSingleChart({
             </button>
           </div>
         </div> */}
+
         <div
           className={`flex flex-row gap-2 justify-between items-center w-full  p-4 ${
             minimizedCards[stock.symbol] ? "" : "mb-4"
@@ -320,6 +388,26 @@ export default function mSingleChart({
                 <p className="text-gray-600 mt-1 text-[14px]">
                   Tracking: {stock.tracking}
                 </p>
+              </div>
+
+              <div className="flex gap-2 items-center flex-wrap ">
+                {timeframes.map((timeframe) => (
+                  <button
+                    key={timeframe.value}
+                    onClick={() => setGlobalTimeFrame(timeframe.value)}
+                    className={`
+             p-3 hover:bg-gray-100 rounded-lg transition-colors bg-[#8192aa29] cursor-pointer
+              ${
+                globalTimeFrame === timeframe.value
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }
+              transition-colors
+            `}
+                  >
+                    {timeframe.label}
+                  </button>
+                ))}
               </div>
               <div className="flex items-center gap-2 ">
                 <div className="flex items-center gap-4 mb-6">

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { createChart } from "lightweight-charts";
 import useTickerStore from "../store/tickerStore";
 import { Maximize2, Minimize2 } from "lucide-react";
+import usePersistStore from "../store/persistStore";
 
 const timeframes = [
   { label: "1m", value: "1min" },
@@ -13,11 +14,11 @@ const timeframes = [
 
 const DeviationChart = ({ stock, index }) => {
   const [isColapsed, setIsColapsed] = useState(false);
-  // const { stocks } = useTickerStore();
+  const { zoom, setZoom } = usePersistStore();
   const [selectedTimeframe, setSelectedTimeframe] = useState("1min");
   const chartContainerRef = useRef(null);
   const chartRef = useRef(null);
-
+  const isUpdatingRef = useRef(false);
   const track = stock.tracking.split(",");
   console.log(track, "track array");
 
@@ -157,6 +158,19 @@ const DeviationChart = ({ stock, index }) => {
 
       chartRef.current = chart;
 
+      // chart.timeScale().subscribeVisibleTimeRangeChange((newTimeRange) => {
+      //   if (
+      //     newTimeRange &&
+      //     !isUpdatingRef.current &&
+      //     JSON.stringify(newTimeRange) !== JSON.stringify(zoom)
+      //   ) {
+      //     isUpdatingRef.current = true;
+      //     setZoom(newTimeRange); // Set the new time range, not the current zoom
+      //     setTimeout(() => {
+      //       isUpdatingRef.current = false;
+      //     }, 0);
+      //   }
+      // });
       // Handle resize
       const handleResize = () => {
         if (chartRef.current && chartContainerRef.current) {
@@ -177,6 +191,26 @@ const DeviationChart = ({ stock, index }) => {
     }
   }, [stock, selectedTimeframe]);
 
+  // useEffect(() => {
+  //   if (chartRef.current && zoom && !isUpdatingRef.current) {
+  //     try {
+  //       // Validate that zoom has the required properties
+  //       if (zoom.from && zoom.to) {
+  //         isUpdatingRef.current = true;
+  //         chartRef.current.timeScale().setVisibleRange({
+  //           from: zoom.from,
+  //           to: zoom.to,
+  //         });
+  //         setTimeout(() => {
+  //           isUpdatingRef.current = false;
+  //         }, 0);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error setting chart zoom:", error);
+  //       isUpdatingRef.current = false;
+  //     }
+  //   }
+  // }, [zoom]);
   return (
     <div className="w-full  mx-auto mt-3 bg-white rounded-lg shadow-sm border border-grey-50 p-4">
       <div className="flex justify-between items-center pb-5">

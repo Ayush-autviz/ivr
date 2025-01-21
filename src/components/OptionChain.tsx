@@ -503,10 +503,10 @@ const OptionChain = ({ data }) => {
                       ).toFixed(2) + "%"}
                     </td>
                     <td className="p-3 border-b text-center border-gray-100">
-                      {row.open_interest.toLocaleString("en-US") || "N/A"}
+                      {row.open_interest?.toLocaleString("en-US") || "N/A"}
                     </td>
                     <td className="p-3 border-b text-center border-gray-100">
-                      {row.day.volume.toLocaleString("en-US") || "N/A"}
+                      {row.day.volume?.toLocaleString("en-US") || "N/A"}
                     </td>
                     <td className="p-3 border-b text-center font-semibold border-gray-100">
                       {(row.implied_volatility

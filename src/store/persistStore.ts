@@ -7,6 +7,16 @@ const usePersistStore = create((set, get) => ({
   error: null,
   internalId: "",
   loading: false,
+  zoom: 5,
+  globalTimeFrame: "1min",
+
+  setGlobalTimeFrame: (globalTimeFrame) => {
+    set({ globalTimeFrame });
+  },
+
+  setZoom: (zoom) => {
+    set({ zoom });
+  },
 
   setError: (error) => {
     set({ error });
@@ -61,21 +71,21 @@ const usePersistStore = create((set, get) => ({
       console.log(error);
     }
 
-    setTimeout(async ()=>{
+    setTimeout(async () => {
       try {
         await axios.delete(`${BASE_URL}/api/stocks/${stockSymbol}`);
       } catch (error) {
         console.log(error);
       }
-    },5000)
+    }, 5000);
 
-    setTimeout(async ()=>{
+    setTimeout(async () => {
       try {
         await axios.delete(`${BASE_URL}/api/stocks/${stockSymbol}`);
       } catch (error) {
         console.log(error);
       }
-    },10000)
+    }, 10000);
   },
   startFetching: async () => {
     const callFunction = get().fetchStocks();

@@ -4,12 +4,14 @@ import { POLYGON_API_KEY } from "../config/polygon";
 import RSIChart from "./RsiChart";
 import { Maximize2, Minimize2 } from "lucide-react";
 import { is } from "date-fns/locale";
+import useTickerStore from "../store/tickerStore";
 
 const LightweightCandlestick = ({ symbol }) => {
   const [isColapsed, setIsColapsed] = useState(false);
   const chartContainerRef = useRef(null);
   const chartRef = useRef(null);
   const candlestickSeriesRef = useRef(null);
+  const { globalTimeFrame, setGlobalTimeFrame } = useTickerStore();
   const wsRef = useRef(null);
   const [historicalData, setHistoricalData] = useState([]);
   const [timeframe, setTimeframe] = useState("1");
@@ -429,6 +431,7 @@ const LightweightCandlestick = ({ symbol }) => {
   }, [symbol, timeframe]);
 
   const handleTimeframeChange = (newTimeframe) => {
+    setGlobalTimeFrame(newTimeframe + "min");
     setTimeframe(newTimeframe);
   };
   console.log(isColapsed, "iscollaped");
