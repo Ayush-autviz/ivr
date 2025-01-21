@@ -5,7 +5,7 @@ const BASE_URL = 'https://api.polygon.io/v3';
 
 export async function fetchOptionExpiryDates(symbol: string): Promise<string[]> {
   try {
-    console.log(symbol,'symbol');
+
     // Get current date in YYYY-MM-DD format
     const today = new Date().toISOString().split('T')[0];
     
@@ -31,7 +31,7 @@ export async function fetchOptionExpiryDates(symbol: string): Promise<string[]> 
       data.results?.map((contract: any) => contract.expiration_date) || []
     )].sort((a, b) => new Date(a).getTime() - new Date(b).getTime()).splice(0,5);
 
-    console.log(expiryDates,'expirydates');
+  
 
     return expiryDates;
   } catch (error) {
@@ -137,7 +137,7 @@ export const fetchOptionStrikes = async (symbol,expiry,number) => {
       .sort((a, b) => a.details.strike_price - b.details.strike_price).slice(0, number/2);
 
 
-      console.log(aboveCurrentPriceCall,belowCurrentPricePut);
+   
 
     // const uniqueBelowPut = [
     //   ...new Set(

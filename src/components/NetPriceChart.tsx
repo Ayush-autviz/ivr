@@ -14,13 +14,13 @@ const timeframes = [
 
 const DeviationChart = ({ stock, index }) => {
   const [isColapsed, setIsColapsed] = useState(false);
-  const { zoom, setZoom } = usePersistStore();
+  const { zoom, setZoom, globalTimeFrame, setGlobalTimeFrame } =
+    usePersistStore();
   const [selectedTimeframe, setSelectedTimeframe] = useState("1min");
   const chartContainerRef = useRef(null);
   const chartRef = useRef(null);
   const isUpdatingRef = useRef(false);
   const track = stock.tracking.split(",");
-  console.log(track, "track array");
 
   useEffect(() => {
     if (chartContainerRef.current) {
@@ -34,18 +34,13 @@ const DeviationChart = ({ stock, index }) => {
             // Calculate the average of all values in the timeframeData
             const values = timeframeData
               .map((dataPoint) => {
-                console.log(parseFloat(dataPoint.value), "12");
                 return parseFloat(dataPoint.value);
               })
               .filter((value) => !isNaN(value));
 
-            console.log(values, "values");
             const total = values.reduce((sum, value) => sum + value, 0);
-            console.log(total, "total");
-            console.log(total / values.length, "division");
 
             const average = total / values.length;
-            console.log(average, "dataval");
 
             return {
               time:
@@ -71,8 +66,6 @@ const DeviationChart = ({ stock, index }) => {
           }
           return acc;
         }, []);
-
-      console.log(chartData, "chartdata2"); // Debugging
 
       // Calculate the maximum absolute value
       // const maxAbsValue = Math.max(
@@ -226,11 +219,14 @@ const DeviationChart = ({ stock, index }) => {
           {timeframes.map((timeframe) => (
             <button
               key={timeframe.value}
-              onClick={() => setSelectedTimeframe(timeframe.value)}
+              onClick={() => {
+                setSelectedTimeframe(timeframe.value);
+                setGlobalTimeFrame(timeframe.value);
+              }}
               className={`
              p-3 hover:bg-gray-100 rounded-lg transition-colors bg-[#8192aa29] cursor-pointer
               ${
-                selectedTimeframe === timeframe.value
+                globalTimeFrame === timeframe.value
                   ? "bg-blue-500 text-white"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }

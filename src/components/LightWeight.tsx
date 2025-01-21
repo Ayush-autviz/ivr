@@ -5,13 +5,14 @@ import RSIChart from "./RsiChart";
 import { Maximize2, Minimize2 } from "lucide-react";
 import { is } from "date-fns/locale";
 import useTickerStore from "../store/tickerStore";
+import usePersistStore from "../store/persistStore";
 
 const LightweightCandlestick = ({ symbol }) => {
   const [isColapsed, setIsColapsed] = useState(false);
   const chartContainerRef = useRef(null);
   const chartRef = useRef(null);
   const candlestickSeriesRef = useRef(null);
-  const { globalTimeFrame, setGlobalTimeFrame } = useTickerStore();
+  const { globalTimeFrame, setGlobalTimeFrame } = usePersistStore();
   const wsRef = useRef(null);
   const [historicalData, setHistoricalData] = useState([]);
   const [timeframe, setTimeframe] = useState("1");
@@ -257,8 +258,6 @@ const LightweightCandlestick = ({ symbol }) => {
           .toISOString()
           .split("T")[0];
 
-        console.log(startDate, endDate);
-
         const response = await fetch(
           `https://api.polygon.io/v2/aggs/ticker/${symbol}/range/${timeframe}/minute/${startDate}/${endDate}?limit=50000&apiKey=${POLYGON_API_KEY}`
         );
@@ -267,7 +266,6 @@ const LightweightCandlestick = ({ symbol }) => {
         if (data.results) {
           const formattedData = data.results.map(formatCandleData);
           setHistoricalData(formattedData);
-          console.log(formattedData, "formatted");
           candlestickSeries.setData(formattedData);
 
           // Calculate and set initial indicators
@@ -331,7 +329,6 @@ const LightweightCandlestick = ({ symbol }) => {
           // Update historical data array and recalculate indicators
           setHistoricalData((prevData) => {
             const newData = [...prevData];
-            console.log(candleData, "real");
             // console.log({...candleData,
             //   time:newData[newData.length - 1].time,
             //   high:newData[newData.length - 1].high,
@@ -434,7 +431,6 @@ const LightweightCandlestick = ({ symbol }) => {
     setGlobalTimeFrame(newTimeframe + "min");
     setTimeframe(newTimeframe);
   };
-  console.log(isColapsed, "iscollaped");
   return (
     <div className="w-full bg-white p-4 mt-5  rounded-lg  shadow-sm border border-grey-50   ">
       <div
@@ -454,7 +450,7 @@ const LightweightCandlestick = ({ symbol }) => {
             <div
               onClick={() => handleTimeframeChange(item)}
               className={`p-3  rounded-lg transition-colors bg-[#8192aa29] cursor-pointer ${
-                timeframe == item
+                globalTimeFrame == item + "min"
                   ? "bg-blue-500 text-white"
                   : "hover:bg-gray-100"
               }`}

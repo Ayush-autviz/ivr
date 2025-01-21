@@ -30,7 +30,7 @@ const OptionChainTable: React.FC = ({ stock }) => {
     }
   );
 
-  console.log(data);
+ 
   return (
     <div className="container p-4 mt-5  rounded-lg  shadow-sm border border-grey-50">
       <div className="flex justify-between mb-3">

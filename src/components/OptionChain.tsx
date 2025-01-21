@@ -48,11 +48,7 @@ const OptionChain = ({ data }) => {
       )
       .join(", ");
 
-    console.log({
-      symbol: ticker,
-      tickers: tickers,
-      tracking: tracking,
-    });
+ 
 
     addStocksToDB({
       symbol: ticker,
@@ -66,7 +62,6 @@ const OptionChain = ({ data }) => {
     }, 3000);
   };
 
-  console.log(callsRow, putsRow, "belowprice");
 
   const handleSelection = (type, row) => {
     if (type === "call") {

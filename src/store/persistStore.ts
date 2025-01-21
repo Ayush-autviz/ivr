@@ -44,7 +44,7 @@ const usePersistStore = create((set, get) => ({
 
       const sorted = get().sortAllStocksData(res.data);
 
-      console.log(sorted, "sorted");
+    
       set({
         stocks: sorted,
         error: null,
@@ -96,7 +96,6 @@ const usePersistStore = create((set, get) => ({
   },
 
   addStocksToDB: async (stock) => {
-    console.log("i am running");
     try {
       await axios.post(`${BASE_URL}/api/stocks`, {
         symbol: stock.symbol,

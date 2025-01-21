@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from "react";
 import { createChart } from "lightweight-charts";
 import LightweightCandlestick from "./LightWeight";
 import DeviationChart from "./NetPriceChart";
-import useTickerStore from "../store/tickerStore";
 import OptionChainTable from "./OptionData";
 import usePersistStore from "../store/persistStore";
 const timeframes = [
@@ -32,6 +31,8 @@ export default function mSingleChart({
   const visibleLogicalRangeRef = useRef(null);
   const { removeStock, zoom, setZoom, globalTimeFrame, setGlobalTimeFrame } =
     usePersistStore();
+
+  console.log(globalTimeFrame, "global");
   // const [selectedTimeframe, setSelectedTimeframe] = useState("1min");
   useEffect(() => {
     if (!chartContainerRef.current || !stock.ivData.length) return;
@@ -98,8 +99,6 @@ export default function mSingleChart({
         value: parseFloat(item?.timeframeDataIV[globalTimeFrame]?.averageIV),
       }))
       .filter((item) => !isNaN(item.value));
-
-    console.log(ivData,'ivDAtaaaaaaaaaa')
 
     // Add main IV area series
     const areaSeries = chart.addAreaSeries({
@@ -261,7 +260,7 @@ export default function mSingleChart({
     return () => {
       window.removeEventListener("resize", handleResize);
     };
-  }, [stock.ivData, sma, lma]);
+  }, [stock.ivData, sma, lma, globalTimeFrame]);
   // useEffect(() => {
   //   if (chartRef.current && zoom) {
   //     try {
