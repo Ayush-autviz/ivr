@@ -3,7 +3,6 @@
 import io from "socket.io-client";
 import usePersistStore from "../store/persistStore";
 import { BASE_URL } from "../constants";
-console.log("running");
 
 // console.log(stocks, "ss");
 const socket = io(BASE_URL, {

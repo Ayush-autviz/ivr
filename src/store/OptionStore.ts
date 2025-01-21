@@ -48,20 +48,17 @@ const useAnalysisStore = create((set, get) => ({
       "belowCurrentPricePut",
     ];
 
-    console.log(newData, "newdata");
 
     categories.forEach((category) => {
       if (Array.isArray(processedData[category])) {
         processedData[category] = processedData[category].map((newOption) => {
           // Skip if current option has valid IV
-          console.log("checking 2");
           if (
             newOption.implied_volatility != null &&
             newOption.implied_volatility !== undefined
           ) {
             return newOption;
           }
-          console.log("checking");
           // Find matching option in previous data based on strike and contract type
           const matchingPreviousOption = previousOptionData[category]?.find(
             (prevOption) =>
@@ -71,7 +68,6 @@ const useAnalysisStore = create((set, get) => ({
                 newOption.details.contract_type
           );
 
-          console.log(matchingPreviousOption, "option");
 
           // If matching option found and it has valid IV, use it
           if (

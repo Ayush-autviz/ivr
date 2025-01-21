@@ -7,7 +7,7 @@ async function fetchOptionDetails(optionId: string) {
       `https://api.polygon.io/v3/quotes/options/${optionId}?apiKey=${POLYGON_API_KEY}`
     );
     const data = await response.json();
-     console.log(data)
+   
     if (!response.ok || !data.results) {
       throw new Error(data.message || 'Failed to fetch option details');
     }
@@ -39,18 +39,15 @@ async function fetchTopOptions(symbol: string, expiryDate: string, count: number
       throw new Error(data.message || 'Failed to fetch option contracts');
     }
 
-    console.log(data);
 
     // Separate Call and Put options
     const calls = data.results.filter((contract) => contract.contract_type === 'call');
     const puts = data.results.filter((contract) => contract.type === 'put');
 
-    console.log('cals')
 
     // Sort by strike price or any other logic (e.g., nearest to current price)
     const sortedCalls = calls.sort((a, b) => a.strike_price - b.strike_price).slice(0, count);
     const sortedPuts = puts.sort((a, b) => a.strike_price - b.strike_price).slice(0, count);
-     console.log(calls)
     return { calls: sortedCalls, puts: sortedPuts };
   } catch (error) {
     console.log(error);

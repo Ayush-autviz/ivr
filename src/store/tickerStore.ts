@@ -19,8 +19,6 @@ const useTickerStore = create((set, get) => ({
   },
 
   addStock: async (stock) => {
-    console.log(stock, "stockkk");
-
     get().removeStock(stock.symbol);
 
     set((state) => ({
@@ -142,7 +140,6 @@ const useTickerStore = create((set, get) => ({
       if (validResults.length === 0) {
         throw new Error("No valid implied volatility data");
       }
-      console.log(validResults, "valid");
       const averageIV =
         validResults.reduce((sum, item) => {
           const truncatedIV = Math.floor(item.implied_volatility * 100) / 100; // Keep only two decimals
@@ -289,15 +286,6 @@ const useTickerStore = create((set, get) => ({
 
               //Iv Change
 
-              console.log(
-                slice[slice.length - 1]?.IVs?.[index] - slice[0]?.IVs?.[index],
-                "ivChange"
-              );
-              console.log(
-                slice[slice.length - 1]?.IVs?.[index],
-                slice[0]?.IVs?.[index],
-                "iv"
-              );
               const ivChange =
                 slice[slice.length - 1]?.IVs?.[index] - slice[0]?.IVs?.[index]; //not multiply by 100
 
@@ -393,7 +381,6 @@ const useTickerStore = create((set, get) => ({
           ...targetStock,
           ivData: updatedIvData,
         };
-        console.log(updatedStocks, "upstocks");
         return {
           stocks: updatedStocks,
           error: null,

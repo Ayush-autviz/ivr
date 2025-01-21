@@ -255,7 +255,6 @@ const LightweightCandlestick = ({ symbol }) => {
           .toISOString()
           .split("T")[0];
 
-        console.log(startDate, endDate);
 
         const response = await fetch(
           `https://api.polygon.io/v2/aggs/ticker/${symbol}/range/${timeframe}/minute/${startDate}/${endDate}?limit=50000&apiKey=${POLYGON_API_KEY}`
@@ -265,7 +264,6 @@ const LightweightCandlestick = ({ symbol }) => {
         if (data.results) {
           const formattedData = data.results.map(formatCandleData);
           setHistoricalData(formattedData);
-          console.log(formattedData, "formatted");
           candlestickSeries.setData(formattedData);
 
           // Calculate and set initial indicators
@@ -329,7 +327,6 @@ const LightweightCandlestick = ({ symbol }) => {
           // Update historical data array and recalculate indicators
           setHistoricalData((prevData) => {
             const newData = [...prevData];
-            console.log(candleData, "real");
             // console.log({...candleData,
             //   time:newData[newData.length - 1].time,
             //   high:newData[newData.length - 1].high,
@@ -349,7 +346,6 @@ const LightweightCandlestick = ({ symbol }) => {
               candleData.time - newData[newData.length - 1].time >
                 timeframe * 60;
 
-            console.log(timeDiff, "timediff");
 
             if (timeDiff || newData.length === 0) {
               candlestickSeriesRef.current?.update(candleData);
@@ -431,7 +427,6 @@ const LightweightCandlestick = ({ symbol }) => {
   const handleTimeframeChange = (newTimeframe) => {
     setTimeframe(newTimeframe);
   };
-  console.log(isColapsed, "iscollaped");
   return (
     <div className="w-full bg-white p-4 mt-5  rounded-lg  shadow-sm border border-grey-50   ">
       <div
