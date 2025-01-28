@@ -18,7 +18,9 @@ const usePersistStore = create((set, get) => ({
   sortStockData: (stock) => {
     return {
       ...stock,
-      ivData: [...stock.ivData].sort((a, b) => a.timestamp - b.timestamp),
+      ivData: [...stock.combinedIVData].sort(
+        (a, b) => a.timestamp - b.timestamp
+      ),
     };
   },
 
@@ -60,21 +62,21 @@ const usePersistStore = create((set, get) => ({
       console.log(error);
     }
 
-    setTimeout(async ()=>{
+    setTimeout(async () => {
       try {
         await axios.delete(`${BASE_URL}/api/stocks/${stockSymbol}`);
       } catch (error) {
         console.log(error);
       }
-    },5000)
+    }, 5000);
 
-    setTimeout(async ()=>{
+    setTimeout(async () => {
       try {
         await axios.delete(`${BASE_URL}/api/stocks/${stockSymbol}`);
       } catch (error) {
         console.log(error);
       }
-    },10000)
+    }, 10000);
   },
   startFetching: async () => {
     const callFunction = get().fetchStocks();
